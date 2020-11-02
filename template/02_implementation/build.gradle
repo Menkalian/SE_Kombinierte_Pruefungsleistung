@@ -3,6 +3,9 @@ plugins {
 }
 
 group 'de.dhbw.mosbach'
+java {
+    version 14
+}
 version '1.0'
 
 repositories {
