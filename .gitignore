@@ -80,3 +80,8 @@ fabric.properties
 *.vpp.bak*
 *.vpp.lck
 
+# Gradle dir
+*/.gradle
+
+template/02_implementation/.gradle/
+template/02_implementation/build/
