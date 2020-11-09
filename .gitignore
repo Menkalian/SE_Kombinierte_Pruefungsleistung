@@ -85,3 +85,4 @@ fabric.properties
 
 template/02_implementation/.gradle/
 template/02_implementation/build/
+/template/03_data_generation/.gradle/
