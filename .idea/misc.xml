@@ -5,4 +5,5 @@
     <file type="web" url="file://$PROJECT_DIR$/template/02_implementation" />
     <file type="web" url="file://$PROJECT_DIR$/template/03_data_generation" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="14" project-jdk-type="JavaSDK" />
 </project>

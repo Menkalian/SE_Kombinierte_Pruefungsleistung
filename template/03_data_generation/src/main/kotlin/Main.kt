@@ -62,7 +62,7 @@ fun main() {
     }
     println("Finished generating data. Generated data for ${passengerIndex.get()} Passengers and ${baggageIndex.get()} Baggages.")
     println()
-    val outputDir = File("data/out/")
+    val outputDir = File("template/02_implementation/src/main/resources/")
     if (outputDir.mkdirs()) {
         println("Created output directory.")
     }
@@ -71,9 +71,9 @@ fun main() {
     val passengerListOutput = FileWriter(outputDir.path + "/passengers.txt", false)
     passengers.forEach {
         val stringToWrite = StringBuilder()
-        stringToWrite.append(it.name + " ")
-        it.baggages.forEach { bag -> stringToWrite.append(bag.number.toString() + " ") }
-        passengerListOutput.write(stringToWrite.trim().toString())
+        stringToWrite.append(it.name + ";")
+        it.baggages.forEach { bag -> stringToWrite.append(bag.number.toString() + ";") }
+        passengerListOutput.write(stringToWrite.trim(';').toString())
         passengerListOutput.write("\n")
     }
     passengerListOutput.close()
