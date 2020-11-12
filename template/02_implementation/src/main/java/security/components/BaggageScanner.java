@@ -12,8 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class BaggageScanner implements IBaggageScanner {
-    private State currentState;
     private final List<Record> scanResults = new LinkedList<>();
+    private State currentState;
     private HashMap<String, Byte> permissions;
     private Employee currentFederalPoliceOfficer;
     private TraySupplyment traySupplyment;
@@ -24,6 +24,10 @@ public class BaggageScanner implements IBaggageScanner {
     private ManualPostControl manualPostControl;
     private OperatingStation operatingStation;
     private Supervision supervision;
+
+    public HashMap<String, Byte> getPermissions () {
+        return permissions;
+    }
 
     public Employee getCurrentFederalPoliceOfficer () {
         return currentFederalPoliceOfficer;
@@ -68,7 +72,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         // Readability/Understandability ->
         //noinspection PointlessBitwiseExpression
-        if ((permission & 1<<0) == 0) {
+        if ((permission & 1 << 0) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
@@ -91,7 +95,7 @@ public class BaggageScanner implements IBaggageScanner {
         // Check for rights
         String authenticated = operatingStation.getAuthenticatedUserType();
         byte permission = permissions.get(authenticated);
-        if ((permission & 1<<1) == 0) {
+        if ((permission & 1 << 1) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
@@ -108,7 +112,7 @@ public class BaggageScanner implements IBaggageScanner {
         // Check for rights
         String authenticated = operatingStation.getAuthenticatedUserType();
         byte permission = permissions.get(authenticated);
-        if ((permission & 1<<2) == 0) {
+        if ((permission & 1 << 2) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
@@ -122,7 +126,7 @@ public class BaggageScanner implements IBaggageScanner {
         // Check for rights
         String authenticated = operatingStation.getAuthenticatedUserType();
         byte permission = permissions.get(authenticated);
-        if ((permission & 1<<3) == 0) {
+        if ((permission & 1 << 3) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
@@ -138,7 +142,7 @@ public class BaggageScanner implements IBaggageScanner {
         // Check for rights
         String authenticated = operatingStation.getAuthenticatedUserType();
         byte permission = permissions.get(authenticated);
-        if ((permission & 1<<4) == 0) {
+        if ((permission & 1 << 4) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
@@ -166,7 +170,7 @@ public class BaggageScanner implements IBaggageScanner {
         // Check for rights
         String authenticated = operatingStation.getAuthenticatedUserType();
         byte permission = permissions.get(authenticated);
-        if ((permission & 1<<5) == 0) {
+        if ((permission & 1 << 5) == 0) {
             System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
             return;
         }
