@@ -5,8 +5,8 @@ import security.customer.Passenger;
 import security.devices.ExplosiveDisarmRobot;
 
 public class FederalPoliceOfficer extends Employee {
-    private String grade;
-    private FederalPoliceOffice office;
+    private final String grade;
+    private final FederalPoliceOffice office;
 
     public FederalPoliceOfficer (String id, String name, String birthDate, String grade, FederalPoliceOffice office) {
         this.id = id;
@@ -20,11 +20,11 @@ public class FederalPoliceOfficer extends Employee {
 
     }
 
-    public void arrestPassenger(Passenger toArrest){
+    public void arrestPassenger (Passenger toArrest) {
 
     }
 
-    public void steerRobot(ExplosiveDisarmRobot robot, BaggageScanner alertedScanner){
+    public void steerRobot (ExplosiveDisarmRobot robot, BaggageScanner alertedScanner) {
 
     }
 }

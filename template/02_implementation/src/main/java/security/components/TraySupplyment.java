@@ -6,14 +6,14 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class TraySupplyment {
-    private Deque<Passenger> passengerQueue = new ArrayDeque<>(568);
+    private final Deque<Passenger> passengerQueue = new ArrayDeque<>(568);
     private BaggageScanner connectedScanner;
 
-    public Tray getTray(){
+    public Tray getTray () {
         return new Tray();
     }
 
-    public void nextPassenger(){
+    public void nextPassenger () {
 
     }
 }

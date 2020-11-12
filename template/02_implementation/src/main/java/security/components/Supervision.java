@@ -6,7 +6,7 @@ public class Supervision {
     private BaggageScanner connectedScanner;
     private Employee supervisor;
 
-    public void pressPowerButton() {
+    public void pressPowerButton () {
 
     }
 }

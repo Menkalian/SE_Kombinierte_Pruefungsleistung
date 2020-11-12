@@ -5,7 +5,7 @@ import security.components.Button;
 import security.components.ManualPostControl;
 
 public class Inspector extends Employee {
-    private boolean isSenior;
+    private final boolean isSenior;
 
     public Inspector (String id, String name, String birthDate, boolean isSenior) {
         this.id = id;
@@ -22,15 +22,15 @@ public class Inspector extends Employee {
 
     }
 
-    public void notifyKnife(){
+    public void notifyKnife () {
 
     }
 
-    public void triggerAlert() {
+    public void triggerAlert () {
 
     }
 
-    public void testBaggageForExplosives(ManualPostControl postControl){
+    public void testBaggageForExplosives (ManualPostControl postControl) {
 
     }
 }

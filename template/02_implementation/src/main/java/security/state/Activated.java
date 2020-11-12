@@ -1,6 +1,6 @@
 package security.state;
 
-public class Activated extends State{
+public class Activated extends State {
     @Override
     public State allScansDone () {
         return new Maintenance();

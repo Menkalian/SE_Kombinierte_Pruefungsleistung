@@ -9,7 +9,7 @@ import java.time.Instant;
 
 public class Scanner {
     private IStringMatching stringMatcher;
-    private Tray currentTray = null;
+    private final Tray currentTray = null;
 
     public Record scan () {
         return new Record(1, Instant.now().toString(), new ScanResult(ScanResultType.CLEAN, null, null));
@@ -19,7 +19,7 @@ public class Scanner {
         return currentTray;
     }
 
-    public Tray move(Tray enteringTray){
+    public Tray move (Tray enteringTray) {
         return null;
     }
 }

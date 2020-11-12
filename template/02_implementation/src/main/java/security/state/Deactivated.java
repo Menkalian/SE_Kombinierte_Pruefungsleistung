@@ -1,6 +1,6 @@
 package security.state;
 
-public class Deactivated extends State{
+public class Deactivated extends State {
     @Override
     public State shutdown () {
         return new Shutdown();

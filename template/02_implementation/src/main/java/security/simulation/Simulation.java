@@ -1,7 +1,7 @@
 package security.simulation;
 
 public class Simulation {
-    public static class Builder{
+    public static class Builder {
 
     }
 }

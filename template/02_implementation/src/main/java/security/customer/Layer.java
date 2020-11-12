@@ -6,7 +6,7 @@ public class Layer {
     @NotNull
     private char[] content;
 
-    public Layer(String content){
+    public Layer (String content) {
         this.content = content.toCharArray();
     }
 
