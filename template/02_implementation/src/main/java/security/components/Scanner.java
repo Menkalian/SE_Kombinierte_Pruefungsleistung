@@ -15,6 +15,10 @@ public class Scanner {
         return new Record(1, Instant.now().toString(), new ScanResult(ScanResultType.CLEAN, null, null));
     }
 
+    public Tray getCurrentTray () {
+        return currentTray;
+    }
+
     public Tray move(Tray enteringTray){
         return null;
     }

@@ -14,4 +14,14 @@ public enum ProhibitedItem {
     public String getSignature () {
         return signature;
     }
+
+
+    @Override
+    public String toString () {
+        StringBuilder toReturn = new StringBuilder();
+        toReturn.append(this.name());
+        while (toReturn.length() < 15)
+            toReturn.append(' ');
+        return toReturn.toString();
+    }
 }

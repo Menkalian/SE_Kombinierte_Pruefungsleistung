@@ -1,6 +1,7 @@
 package security.customer;
 
 import security.components.BaggageScanner;
+import security.components.Tray;
 
 public class Passenger {
     private final String name;
@@ -32,6 +33,10 @@ public class Passenger {
     }
 
     public void putBaggageToScan (BaggageScanner scanner) {
-
+        for (HandBaggage handBaggage : baggage) {
+            final Tray tray = scanner.getTraySupplyment().getTray();
+            tray.putBaggage(handBaggage);
+            scanner.getRollerConveyor().addTray(tray);
+        }
     }
 }

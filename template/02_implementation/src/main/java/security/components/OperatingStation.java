@@ -5,6 +5,27 @@ import security.staff.Employee;
 
 public class OperatingStation {
     private BaggageScanner connectedScanner;
+
+    public BaggageScanner getConnectedScanner () {
+        return connectedScanner;
+    }
+
+    public String getAuthenticatedUserType () {
+        return authenticatedUserType;
+    }
+
+    public Employee getPresentUser () {
+        return presentUser;
+    }
+
+    public CardReader getCardReader () {
+        return cardReader;
+    }
+
+    public Button[] getButtons () {
+        return buttons;
+    }
+
     private String authenticatedUserType;
     private Employee presentUser;
     private CardReader cardReader;

@@ -7,6 +7,10 @@ public class Tray {
     @Nullable
     private HandBaggage containedBaggage;
 
+    public @Nullable HandBaggage getContainedBaggage () {
+        return containedBaggage;
+    }
+
     public void putBaggage (HandBaggage baggage) {
         if (containedBaggage != null) {
             throw new RuntimeException("This Tray has no sufficient Capacity for this Baggage");
@@ -15,7 +19,7 @@ public class Tray {
         containedBaggage = baggage;
     }
 
-    public HandBaggage takeBaggage() {
+    public HandBaggage takeBaggage () {
         if (containedBaggage == null) {
             throw new RuntimeException("This Tray has no Baggage in it");
         }
