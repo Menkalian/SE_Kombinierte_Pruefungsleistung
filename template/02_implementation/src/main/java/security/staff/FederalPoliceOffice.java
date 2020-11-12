@@ -6,11 +6,12 @@ import security.devices.ExplosiveDisarmRobot;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class FederalPoliceOffice {
-    private ExplosiveDisarmRobot[] robots;
-    private List<FederalPoliceOfficer> registeredOfficers;
-    private List<Passenger> arrestedPassengers;
+    private final List<FederalPoliceOfficer> registeredOfficers;
+    private final List<Passenger> arrestedPassengers;
+    private final ExplosiveDisarmRobot[] robots;
 
     public FederalPoliceOffice () {
         robots = new ExplosiveDisarmRobot[3];
@@ -23,11 +24,25 @@ public class FederalPoliceOffice {
     }
 
     public FederalPoliceOfficer[] requestReinforcment () {
-        return null;
+        System.out.println("Reinforcement ist being deployed from FederalPoliceOffice");
+        return registeredOfficers.subList(1, 3).toArray(new FederalPoliceOfficer[2]);
+    }
+
+    public List<FederalPoliceOfficer> getRegisteredOfficers () {
+        return registeredOfficers;
+    }
+
+    public ExplosiveDisarmRobot supplyDisarmRobot () {
+        System.out.println("Supplying ExplosivesDisarmRobot");
+        Random rng = new Random();
+        return robots[rng.nextInt(robots.length)];
     }
 
     public void takeArrestedPassenger (Passenger arrested) {
         System.out.println("Passenger " + arrested.getName() + " was arrested in the FederalPoliceOffice.");
         arrestedPassengers.add(arrested);
+        System.out.println("Now Arrested Passengers: ");
+        arrestedPassengers.stream().map(Passenger::getName).forEach(System.out::println);
+        System.out.println();
     }
 }

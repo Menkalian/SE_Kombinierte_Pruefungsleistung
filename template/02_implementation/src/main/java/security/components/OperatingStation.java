@@ -10,6 +10,7 @@ public class OperatingStation {
     private CardReader cardReader;
     private Button[] buttons;
 
+
     public BaggageScanner getConnectedScanner () {
         return connectedScanner;
     }

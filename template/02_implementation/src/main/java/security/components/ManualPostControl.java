@@ -13,4 +13,6 @@ public class ManualPostControl {
     private Tray currentTrayToInvestigate;
     private Passenger presentPassenger;
     private ExplosivesTraceDetector explosivesTraceDetector;
+
+
 }
