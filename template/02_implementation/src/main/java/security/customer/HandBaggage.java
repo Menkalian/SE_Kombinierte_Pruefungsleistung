@@ -1,16 +1,17 @@
 package security.customer;
 
+import org.jetbrains.annotations.NotNull;
 import security.devices.ExplosivesTestStrip;
 
 import java.util.Arrays;
 
 public class HandBaggage {
-
+    @NotNull
     private final Passenger owner;
+    @NotNull
+    private final Layer[] layers;
 
-    private Layer[] layers;
-
-    public HandBaggage (Passenger owner, Layer[] layers) {
+    public HandBaggage (@NotNull Passenger owner, @NotNull Layer[] layers) {
         this.owner = owner;
         this.layers = layers;
     }
@@ -20,15 +21,14 @@ public class HandBaggage {
     }
 
     public String takeContent (int layer, int position, int length) {
-        final char[] original = layers[layer].getContent();
-        char[] taken = Arrays.copyOfRange(original, position, position + length);
+        final @NotNull char[] original = layers[layer].getContent();
+        char[] toReturn = Arrays.copyOfRange(original, position, position + length);
         for (int i = 0 ; i < length ; i++) {
             original[position + i] = ' ';
         }
         layers[layer].setContent(original);
-        final String takenString = new String(taken);
-        System.out.printf("\"%s\" was taken from the baggage of \"%s\". [Layer: %d; Position: %d]%n", takenString, owner.getName(), layer, position);
-        return takenString;
+        System.out.println("Taken " + String.valueOf(toReturn) + " out of the Baggage of passenger \"" + owner.getName() + "\"");
+        return String.valueOf(toReturn);
     }
 
     public Passenger getOwner () {
@@ -37,9 +37,5 @@ public class HandBaggage {
 
     public Layer[] getLayers () {
         return layers;
-    }
-
-    public void setLayers (Layer[] layers) {
-        this.layers = layers;
     }
 }

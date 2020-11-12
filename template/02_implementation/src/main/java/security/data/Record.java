@@ -32,7 +32,7 @@ public class Record {
 
         return "# Scan " + idFormat.format(id) + "   Timestamp: #\n" +
                "#" + timestamp + "#\n" +
-               "# Result:               #\n" +
-               result.toString();
+               "# Result:              #\n" +
+               result.toString() + "\n";
     }
 }
