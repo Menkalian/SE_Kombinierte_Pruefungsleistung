@@ -9,7 +9,7 @@ public class HandBaggage {
     @NotNull
     private final Passenger owner;
     @NotNull
-    private final Layer[] layers;
+    private Layer[] layers;
 
     public HandBaggage (@NotNull Passenger owner, @NotNull Layer[] layers) {
         this.owner = owner;
@@ -37,5 +37,9 @@ public class HandBaggage {
 
     public Layer[] getLayers () {
         return layers;
+    }
+
+    public void setLayers (Layer[] layers) {
+        this.layers = layers;
     }
 }
