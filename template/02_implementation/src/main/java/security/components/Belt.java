@@ -5,8 +5,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class Belt {
 
-    private BaggageScanner connectedScanner;
     private final Deque<Tray> trayQueue = new LinkedBlockingDeque<>();
+    private BaggageScanner connectedScanner;
 
     public BaggageScanner getConnectedScanner () {
         return connectedScanner;

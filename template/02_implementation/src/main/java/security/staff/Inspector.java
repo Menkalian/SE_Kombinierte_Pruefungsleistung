@@ -33,4 +33,8 @@ public class Inspector extends Employee {
     public void testBaggageForExplosives (ManualPostControl postControl) {
 
     }
+
+    public boolean isSenior () {
+        return isSenior;
+    }
 }

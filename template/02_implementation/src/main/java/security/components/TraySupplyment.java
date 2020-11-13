@@ -1,5 +1,6 @@
 package security.components;
 
+import security.customer.HandBaggage;
 import security.customer.Passenger;
 
 import java.util.ArrayDeque;
@@ -14,6 +15,13 @@ public class TraySupplyment {
     }
 
     public void nextPassenger () {
-
+        Passenger current = passengerQueue.getFirst();
+        for (HandBaggage handBaggage : current.getBaggage()) {
+            Tray temp = getTray();
+            temp.putBaggage(handBaggage);
+            connectedScanner.getRollerConveyor().addTray(temp);
+        }
+        connectedScanner.getOutgoingTracks()[1].passengerWaiting(current);
+        System.out.println("Passenger \"" + current.getName() + "\" has placed their baggage. They are waiting at the outgoing track.");
     }
 }

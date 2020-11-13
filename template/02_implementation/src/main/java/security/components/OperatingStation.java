@@ -2,6 +2,7 @@ package security.components;
 
 import security.devices.CardReader;
 import security.staff.Employee;
+import security.state.Locked;
 
 public class OperatingStation {
     private BaggageScanner connectedScanner;
@@ -21,6 +22,9 @@ public class OperatingStation {
 
     public void setAuthenticatedUserType (String authenticatedUserType) {
         this.authenticatedUserType = authenticatedUserType;
+        if (authenticatedUserType.equals("S") && this.getConnectedScanner().getCurrentState() instanceof Locked) {
+            connectedScanner.setCurrentState(connectedScanner.getCurrentState().unlock());
+        }
     }
 
     public Employee getPresentUser () {

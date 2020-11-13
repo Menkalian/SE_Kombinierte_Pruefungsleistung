@@ -1,13 +1,12 @@
 package security.components;
 
-import org.jetbrains.annotations.Nullable;
 import security.customer.HandBaggage;
 
 public class Tray {
-    @Nullable
+
     private HandBaggage containedBaggage;
 
-    public @Nullable HandBaggage getContainedBaggage () {
+    public HandBaggage getContainedBaggage () {
         return containedBaggage;
     }
 

@@ -1,6 +1,7 @@
 package security.staff;
 
 import security.data.IDCard;
+import security.devices.CardReader;
 
 public abstract class Employee {
     protected String id;
@@ -26,5 +27,12 @@ public abstract class Employee {
 
     public String getBirthDate () {
         return birthDate;
+    }
+
+    public void enterPIN (CardReader terminal) {
+        System.out.println(name + " is trying to authenticate at the CardReader");
+        terminal.swipeCard(idCard);
+        // Default value for PIN = Year of birth. Completely safe ;-)
+        terminal.enterPin(birthDate.split("\\.")[2]);
     }
 }

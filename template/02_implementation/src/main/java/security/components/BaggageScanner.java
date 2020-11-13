@@ -25,6 +25,14 @@ public class BaggageScanner implements IBaggageScanner {
     private OperatingStation operatingStation;
     private Supervision supervision;
 
+    public State getCurrentState () {
+        return currentState;
+    }
+
+    public void setCurrentState (State currentState) {
+        this.currentState = currentState;
+    }
+
     public HashMap<String, Byte> getPermissions () {
         return permissions;
     }

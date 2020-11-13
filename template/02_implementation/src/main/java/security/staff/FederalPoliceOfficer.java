@@ -27,4 +27,12 @@ public class FederalPoliceOfficer extends Employee {
     public void steerRobot (ExplosiveDisarmRobot robot, BaggageScanner alertedScanner) {
 
     }
+
+    public String getGrade () {
+        return grade;
+    }
+
+    public FederalPoliceOffice getOffice () {
+        return office;
+    }
 }
