@@ -8,11 +8,11 @@ import security.staff.FederalPoliceOfficer;
 public class ManualPostControl {
     private final Track belongingTrack;
     private final BaggageScanner connectedScanner;
+    private final ExplosivesTraceDetector explosivesTraceDetector;
     private Employee workingInspector;
     private FederalPoliceOfficer[] presentOfficers;
     private Tray currentTrayToInvestigate;
     private Passenger presentPassenger;
-    private final ExplosivesTraceDetector explosivesTraceDetector;
 
     public ManualPostControl (Track belongingTrack, BaggageScanner connectedScanner, ExplosivesTraceDetector explosivesTraceDetector) {
         this.belongingTrack = belongingTrack;
