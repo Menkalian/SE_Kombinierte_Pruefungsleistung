@@ -32,16 +32,18 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Simulation {
     private final BaggageScanner baggageScanner;
     private final List<Passenger> passengers;
-    private final List<Employee> employees;
+    private final Map<String, Employee> employees;
     private final FederalPoliceOffice policeOffice;
 
-    private Simulation (BaggageScanner baggageScanner, List<Passenger> passengers, List<Employee> employees, FederalPoliceOffice policeOffice) {
+    private Simulation (BaggageScanner baggageScanner, List<Passenger> passengers, Map<String, Employee> employees, FederalPoliceOffice policeOffice) {
         this.baggageScanner = baggageScanner;
         this.passengers = passengers;
         this.employees = employees;
@@ -50,6 +52,11 @@ public class Simulation {
 
 
     public static void main (String[] args) {
+//        try {
+//            System.setOut(new PrintStream(new File("log.txt")));
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
         Builder simulationBuilder = new Builder();
         simulationBuilder.defaultEmployees();
         try {
@@ -59,31 +66,57 @@ public class Simulation {
         }
         final Simulation build = simulationBuilder.build();
         build.initializeSimulation();
+        build.runSimulation();
     }
 
     public void initializeSimulation () {
         // Place Employees
-        baggageScanner.getRollerConveyor().setWorkingInspector(employees.stream().filter(employee -> employee.getId().equals("I1")).findFirst().orElseThrow());
-        baggageScanner.getOperatingStation().setPresentUser(employees.stream().filter(employee -> employee.getId().equals("I2")).findFirst().orElseThrow());
-        baggageScanner.getManualPostControl().setWorkingInspector(employees.stream().filter(employee -> employee.getId().equals("I3")).findFirst().orElseThrow());
-        baggageScanner.getSupervision().setSupervisor(employees.stream().filter(employee -> employee instanceof Supervisor).findFirst().orElseThrow());
-        baggageScanner.setCurrentFederalPoliceOfficer(employees.stream().filter(employee -> employee instanceof FederalPoliceOfficer).findFirst().orElseThrow());
+        baggageScanner.getRollerConveyor().setWorkingInspector(employees.get("I1"));
+        baggageScanner.getOperatingStation().setPresentUser(employees.get("I2"));
+        baggageScanner.getManualPostControl().setWorkingInspector(employees.get("I3"));
+        baggageScanner.getSupervision().setSupervisor(employees.get("S"));
+        baggageScanner.setCurrentFederalPoliceOfficer(employees.get("O1"));
 
         // Add Passengers
         baggageScanner.getTraySupplyment().getPassengerQueue().addAll(passengers);
     }
 
     public void runSimulation () {
+        // Turn Scanner on
+        ((Supervisor) baggageScanner.getSupervision().getSupervisor()).switchPower(baggageScanner);
+
+        // Activate Scanner
+        baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
+
+        while (!baggageScanner.getTraySupplyment().getPassengerQueue().isEmpty()) {
+            System.out.println("Next passenger is going through the scanner.");
+            baggageScanner.getTraySupplyment().nextPassenger();
+            ((Inspector) employees.get("I1")).pushTray(baggageScanner);
+
+            while (!baggageScanner.getBelt().getTrayQueue().isEmpty()) {
+                ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[2]);
+                ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[1]);
+            }
+            ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[2]);
+            System.out.println("Passenger Baggage was completely scanned.");
+        }
+
+        employees.get("T").enterPIN(baggageScanner.getOperatingStation().getCardReader());
+        ((Technician) employees.get("T")).performMaintenance(baggageScanner);
+
+        ((Supervisor) employees.get("S")).switchPower(baggageScanner);
+        employees.get("S").enterPIN(baggageScanner.getOperatingStation().getCardReader());
+        baggageScanner.report();
 
     }
 
     public static class Builder {
         private final List<Passenger> passengers = new LinkedList<>();
-        private final List<Employee> employees = new ArrayList<>();
+        private final Map<String, Employee> employees = new HashMap<>();
         private final Configuration config = new Configuration();
 
         public void addEmployee (Employee employee) {
-            employees.add(employee);
+            employees.put(employee.getId(), employee);
         }
 
         public void addPassenger (Passenger passenger) {
@@ -131,7 +164,7 @@ public class Simulation {
 
             // Initialize the Employees.
             // Give everybody an IDCard
-            employees.forEach(employee -> {
+            employees.forEach((id, employee) -> {
                 String pin = employee.getBirthDate().split("\\.")[2];
                 TypeOfIDCard cardType;
                 String profiletype;
@@ -169,7 +202,7 @@ public class Simulation {
             });
 
             // Register Officers
-            employees.stream()
+            employees.values().stream()
                      .filter(employee -> employee instanceof FederalPoliceOfficer)
                      .map(employee -> (FederalPoliceOfficer) employee)
                      .forEach(officer -> {

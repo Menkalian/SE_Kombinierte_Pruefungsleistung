@@ -15,11 +15,12 @@ public class Inspector extends Employee {
     }
 
     public void pushTray (BaggageScanner scanner) {
-
+        while (!scanner.getRollerConveyor().getTrayQueue().isEmpty())
+            scanner.getRollerConveyor().pushTrays();
     }
 
     public void pushButton (Button button) {
-
+        button.push();
     }
 
     public void notifyKnife () {

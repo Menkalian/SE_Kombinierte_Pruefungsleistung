@@ -32,12 +32,15 @@ public class ScanResult {
     @Override
     public String toString () {
         if (type == ScanResultType.CLEAN) {
-            return "#         CLEAN         #\n";
+            return "#         CLEAN         #\n" +
+                   "#                       #";
         } else {
             DecimalFormat positionFormat = new DecimalFormat("00000");
             return "#  PROHIBITED ITEM AT:  #\n" +
-                   "# Layer " + position[0] + "; Position " + positionFormat.format(position[1]) + " #\n" +
-                   "# Type: " + itemType.toString() + " #\n";
+                   "#    Layer " + position[0] + "            #\n" +
+                   "#    Position " + positionFormat.format(position[1]) + "     #\n" +
+                   "# Type: " + itemType.toString() + " #\n" +
+                   "#                       #";
         }
     }
 }

@@ -206,9 +206,9 @@ public class BaggageScanner implements IBaggageScanner {
         System.out.println("# Performed-Scans: " + format.format(scanResults.size()) + "#");
         System.out.println("#########################");
         System.out.println("##### SCAN RESULTS ######");
-        System.out.println();
+        System.out.println("#                       #");
         scanResults.forEach(System.out::println);
-        System.out.println();
+        System.out.println("#                       #");
         System.out.println("#########################");
         System.out.println("##### END OF REPORT #####");
         System.out.println("#########################");
@@ -224,12 +224,12 @@ public class BaggageScanner implements IBaggageScanner {
             return;
         }
 
+        currentState = currentState.allScansDone();
         System.out.println("Performing Maintenance");
         System.out.println("Transmitting data...");
         System.out.println("Checking for errors...");
         System.out.println("No errors detected.");
         System.out.println("Maintenance complete!");
         System.out.println("Initiating Shutdown");
-        currentState = currentState.shutdown();
     }
 }

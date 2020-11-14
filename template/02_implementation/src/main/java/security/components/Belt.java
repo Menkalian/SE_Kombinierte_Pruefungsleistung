@@ -7,6 +7,10 @@ public class Belt {
 
     private final Deque<Tray> trayQueue = new LinkedBlockingDeque<>();
 
+    public Deque<Tray> getTrayQueue () {
+        return trayQueue;
+    }
+
     public Tray moveRight () {
         return trayQueue.pollFirst();
     }

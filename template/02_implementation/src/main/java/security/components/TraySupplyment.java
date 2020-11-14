@@ -23,7 +23,7 @@ public class TraySupplyment {
     }
 
     public void nextPassenger () {
-        Passenger current = passengerQueue.getFirst();
+        Passenger current = passengerQueue.pollFirst();
         for (HandBaggage handBaggage : current.getBaggage()) {
             Tray temp = getTray();
             temp.putBaggage(handBaggage);

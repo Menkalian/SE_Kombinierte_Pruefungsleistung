@@ -19,15 +19,18 @@ public class Track {
 
     public void passengerWaiting (Passenger waiting) {
         System.out.printf("Passenger \"%s\" is now waiting at Track %d.%n", waiting.getName(), trackNumber);
+        waitingPassengers.add(waiting);
     }
 
     public void trayArrive (Tray arriving) {
+        System.out.println("Tray arriving at Track " + trackNumber + ".");
         trays.add(arriving);
 
         List<HandBaggage> presentBaggage = trays.stream().map(Tray::getContainedBaggage).collect(Collectors.toList());
         final Passenger owner = arriving.getContainedBaggage().getOwner();
         if (presentBaggage.containsAll(Arrays.asList(owner.getBaggage()))) {
             if (waitingPassengers.contains(owner)) {
+                System.out.println("Owner present");
                 passengerLeavingWithBaggage(owner, owner.getBaggage());
             }
         }

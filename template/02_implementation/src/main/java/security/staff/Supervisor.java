@@ -1,5 +1,7 @@
 package security.staff;
 
+import security.components.BaggageScanner;
+
 public class Supervisor extends Employee {
     private final boolean isSenior;
     private final boolean isExecutive;
@@ -18,5 +20,13 @@ public class Supervisor extends Employee {
 
     public boolean isExecutive () {
         return isExecutive;
+    }
+
+    public void unlockScanner (BaggageScanner scanner) {
+        enterPIN(scanner.getOperatingStation().getCardReader());
+    }
+
+    public void switchPower (BaggageScanner scanner) {
+        scanner.getSupervision().pressPowerButton();
     }
 }

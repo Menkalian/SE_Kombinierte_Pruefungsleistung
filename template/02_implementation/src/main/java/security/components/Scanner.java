@@ -7,7 +7,8 @@ import security.data.ScanResult;
 import security.data.enums.ProhibitedItem;
 import security.data.enums.ScanResultType;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Scanner {
     private final IStringMatching stringMatcher;
@@ -24,6 +25,8 @@ public class Scanner {
             throw new NullPointerException();
         }
 
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm:ss,SSS");
+
         for (ProhibitedItem item : ProhibitedItem.values()) {
             final HandBaggage currentBaggage = currentTray.getContainedBaggage();
             for (int layer = 0 ; layer < currentBaggage.getLayers().length ; layer++) {
@@ -31,11 +34,11 @@ public class Scanner {
 
                 final int searchResult = stringMatcher.search(toScan, item.getSignature());
                 if (searchResult != -1) {
-                    return new Record(scanCount++, Instant.now().toString(), new ScanResult(ScanResultType.PROHIBITED_ITEM, item, new int[] {layer, searchResult}));
+                    return new Record(scanCount++, dateTimeFormatter.format(LocalDateTime.now()), new ScanResult(ScanResultType.PROHIBITED_ITEM, item, new int[] {layer, searchResult}));
                 }
             }
         }
-        return new Record(scanCount++, Instant.now().toString(), new ScanResult(ScanResultType.CLEAN, null, null));
+        return new Record(scanCount++, dateTimeFormatter.format(LocalDateTime.now()), new ScanResult(ScanResultType.CLEAN, null, null));
     }
 
     public Tray getCurrentTray () {
