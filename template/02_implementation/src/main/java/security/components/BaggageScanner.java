@@ -4,6 +4,7 @@ import security.data.Record;
 import security.data.enums.ScanResultType;
 import security.staff.Employee;
 import security.staff.FederalPoliceOfficer;
+import security.state.Shutdown;
 import security.state.State;
 
 import java.text.DecimalFormat;
@@ -13,8 +14,8 @@ import java.util.List;
 
 public class BaggageScanner implements IBaggageScanner {
     private final List<Record> scanResults = new LinkedList<>();
-    private State currentState;
-    private HashMap<String, Byte> permissions;
+    private final HashMap<String, Byte> permissions;
+    private State currentState = new Shutdown();
     private Employee currentFederalPoliceOfficer;
     private TraySupplyment traySupplyment;
     private RollerConveyor rollerConveyor;
@@ -24,6 +25,10 @@ public class BaggageScanner implements IBaggageScanner {
     private ManualPostControl manualPostControl;
     private OperatingStation operatingStation;
     private Supervision supervision;
+
+    public BaggageScanner (HashMap<String, Byte> permissions) {
+        this.permissions = permissions;
+    }
 
     public State getCurrentState () {
         return currentState;
@@ -41,36 +46,72 @@ public class BaggageScanner implements IBaggageScanner {
         return currentFederalPoliceOfficer;
     }
 
+    public void setCurrentFederalPoliceOfficer (Employee currentFederalPoliceOfficer) {
+        this.currentFederalPoliceOfficer = currentFederalPoliceOfficer;
+    }
+
     public TraySupplyment getTraySupplyment () {
         return traySupplyment;
+    }
+
+    public void setTraySupplyment (TraySupplyment traySupplyment) {
+        this.traySupplyment = traySupplyment;
     }
 
     public RollerConveyor getRollerConveyor () {
         return rollerConveyor;
     }
 
+    public void setRollerConveyor (RollerConveyor rollerConveyor) {
+        this.rollerConveyor = rollerConveyor;
+    }
+
     public Belt getBelt () {
         return belt;
+    }
+
+    public void setBelt (Belt belt) {
+        this.belt = belt;
     }
 
     public Scanner getScanner () {
         return scanner;
     }
 
+    public void setScanner (Scanner scanner) {
+        this.scanner = scanner;
+    }
+
     public Track[] getOutgoingTracks () {
         return outgoingTracks;
+    }
+
+    public void setOutgoingTracks (Track[] outgoingTracks) {
+        this.outgoingTracks = outgoingTracks;
     }
 
     public ManualPostControl getManualPostControl () {
         return manualPostControl;
     }
 
+    public void setManualPostControl (ManualPostControl manualPostControl) {
+        this.manualPostControl = manualPostControl;
+    }
+
     public OperatingStation getOperatingStation () {
         return operatingStation;
     }
 
+    public void setOperatingStation (OperatingStation operatingStation) {
+        this.operatingStation = operatingStation;
+    }
+
     public Supervision getSupervision () {
         return supervision;
+    }
+
+    public void setSupervision (Supervision supervision) {
+        this.supervision = supervision;
     }
 
     @Override

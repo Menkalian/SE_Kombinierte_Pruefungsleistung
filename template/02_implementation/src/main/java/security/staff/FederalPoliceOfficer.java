@@ -6,18 +6,17 @@ import security.devices.ExplosiveDisarmRobot;
 
 public class FederalPoliceOfficer extends Employee {
     private final String grade;
-    private final FederalPoliceOffice office;
+    private FederalPoliceOffice office;
 
-    public FederalPoliceOfficer (String id, String name, String birthDate, String grade, FederalPoliceOffice office) {
+    public FederalPoliceOfficer (String id, String name, String birthDate, String grade) {
         this.id = id;
         this.name = name;
         this.birthDate = birthDate;
         this.grade = grade;
-        this.office = office;
     }
 
     public void takeWeapon (String weapon) {
-
+        System.out.println("Officer " + name + " took " + weapon);
     }
 
     public void arrestPassenger (Passenger toArrest) {
@@ -34,5 +33,9 @@ public class FederalPoliceOfficer extends Employee {
 
     public FederalPoliceOffice getOffice () {
         return office;
+    }
+
+    public void setOffice (FederalPoliceOffice office) {
+        this.office = office;
     }
 }

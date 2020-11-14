@@ -5,12 +5,15 @@ import security.staff.Employee;
 import security.state.Locked;
 
 public class OperatingStation {
-    private BaggageScanner connectedScanner;
+    private final BaggageScanner connectedScanner;
     private String authenticatedUserType;
     private Employee presentUser;
     private CardReader cardReader;
     private Button[] buttons;
 
+    public OperatingStation (BaggageScanner connectedScanner) {
+        this.connectedScanner = connectedScanner;
+    }
 
     public BaggageScanner getConnectedScanner () {
         return connectedScanner;
@@ -39,7 +42,15 @@ public class OperatingStation {
         return cardReader;
     }
 
+    public void setCardReader (CardReader cardReader) {
+        this.cardReader = cardReader;
+    }
+
     public Button[] getButtons () {
         return buttons;
+    }
+
+    public void setButtons (Button[] buttons) {
+        this.buttons = buttons;
     }
 }

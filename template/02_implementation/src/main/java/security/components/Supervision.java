@@ -4,8 +4,20 @@ import security.staff.Employee;
 import security.state.Shutdown;
 
 public class Supervision {
-    private BaggageScanner connectedScanner;
+    private final BaggageScanner connectedScanner;
     private Employee supervisor;
+
+    public Supervision (BaggageScanner connectedScanner) {
+        this.connectedScanner = connectedScanner;
+    }
+
+    public Employee getSupervisor () {
+        return supervisor;
+    }
+
+    public void setSupervisor (Employee supervisor) {
+        this.supervisor = supervisor;
+    }
 
     public void pressPowerButton () {
         System.out.println("Supervisor pressed Power-Button");

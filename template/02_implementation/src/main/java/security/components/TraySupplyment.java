@@ -8,7 +8,15 @@ import java.util.Deque;
 
 public class TraySupplyment {
     private final Deque<Passenger> passengerQueue = new ArrayDeque<>(568);
-    private BaggageScanner connectedScanner;
+    private final BaggageScanner connectedScanner;
+
+    public TraySupplyment (BaggageScanner connectedScanner) {
+        this.connectedScanner = connectedScanner;
+    }
+
+    public Deque<Passenger> getPassengerQueue () {
+        return passengerQueue;
+    }
 
     public Tray getTray () {
         return new Tray();
