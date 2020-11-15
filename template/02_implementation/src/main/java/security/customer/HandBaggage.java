@@ -21,13 +21,14 @@ public class HandBaggage {
 
     public String takeContent (int layer, int position, int length) {
         final char[] original = layers[layer].getContent();
-        char[] toReturn = Arrays.copyOfRange(original, position, position + length);
+        char[] taken = Arrays.copyOfRange(original, position, position + length);
         for (int i = 0 ; i < length ; i++) {
             original[position + i] = ' ';
         }
         layers[layer].setContent(original);
-        System.out.println("Taken " + String.valueOf(toReturn) + " out of the Baggage of passenger \"" + owner.getName() + "\"");
-        return String.valueOf(toReturn);
+        final String takenString = new String(taken);
+        System.out.printf("\"%s\" was taken from the baggage of \"%s\". [Layer: %d; Position: %d]%n", takenString, owner.getName(), layer, position);
+        return takenString;
     }
 
     public Passenger getOwner () {

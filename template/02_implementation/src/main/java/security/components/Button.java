@@ -19,4 +19,11 @@ public class Button {
             case RIGHT_ARROW -> connectedOperatingStation.getConnectedScanner().moveBeltForward();
         }
     }
+
+    @Override
+    public String toString () {
+        return "Button{" +
+               "icon=" + icon +
+               '}';
+    }
 }

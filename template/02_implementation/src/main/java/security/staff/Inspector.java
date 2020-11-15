@@ -20,15 +20,14 @@ public class Inspector extends Employee {
     }
 
     public void pushButton (Button button) {
+        System.out.println("Inspector \"" + name + "\" is pushing the Button \"" + button.toString() + "\".");
         button.push();
     }
 
     public void notifyKnife () {
-
     }
 
     public void triggerAlert () {
-
     }
 
     public void testBaggageForExplosives (ManualPostControl postControl) {

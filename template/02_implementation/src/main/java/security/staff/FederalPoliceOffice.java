@@ -24,7 +24,7 @@ public class FederalPoliceOffice {
     }
 
     public FederalPoliceOfficer[] requestReinforcment () {
-        System.out.println("Reinforcement ist being deployed from FederalPoliceOffice");
+        System.out.println("Reinforcement requested. Deploying Toto and Harry.");
         return registeredOfficers.subList(1, 3).toArray(new FederalPoliceOfficer[2]);
     }
 
@@ -33,7 +33,7 @@ public class FederalPoliceOffice {
     }
 
     public ExplosiveDisarmRobot supplyDisarmRobot () {
-        System.out.println("Supplying ExplosivesDisarmRobot");
+        System.out.println("An ExplosiveDisarmRobot was deployed from the FederalPoliceOffice.");
         Random rng = new Random();
         return robots[rng.nextInt(robots.length)];
     }

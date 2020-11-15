@@ -16,15 +16,17 @@ public class FederalPoliceOfficer extends Employee {
     }
 
     public void takeWeapon (String weapon) {
-        System.out.println("Officer " + name + " took " + weapon);
+        System.out.printf("\"%s\" took weapon: \"%s\"%n", name, weapon);
     }
 
     public void arrestPassenger (Passenger toArrest) {
-
+        office.takeArrestedPassenger(toArrest);
+        System.out.printf("Passenger \"%s\" was arrested by \"%s\".%n", toArrest.getName(), name);
     }
 
     public void steerRobot (ExplosiveDisarmRobot robot, BaggageScanner alertedScanner) {
-
+        System.out.printf("\"%s\" is steering the robot to destroy the baggage%n", name);
+        robot.destroyBaggage(alertedScanner.getManualPostControl().getCurrentTrayToInvestigate().takeBaggage());
     }
 
     public String getGrade () {
