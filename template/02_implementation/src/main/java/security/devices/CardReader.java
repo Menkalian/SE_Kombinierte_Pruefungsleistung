@@ -8,9 +8,9 @@ import java.util.Objects;
 
 public class CardReader {
     private final AES encrypter;
+    private final OperatingStation connectedOperatingStation;
     private IDCard lastScanned;
     private int wrongInputs;
-    private OperatingStation connectedOperatingStation;
 
     public CardReader (AES encrypter, OperatingStation connectedOperatingStation) {
         this.encrypter = encrypter;
@@ -68,7 +68,4 @@ public class CardReader {
         return connectedOperatingStation;
     }
 
-    public void setConnectedOperatingStation (OperatingStation connectedOperatingStation) {
-        this.connectedOperatingStation = connectedOperatingStation;
-    }
 }

@@ -1,5 +1,6 @@
 package security.components;
 
+import security.customer.Passenger;
 import security.data.Record;
 import security.data.enums.ScanResultType;
 import security.staff.Employee;
@@ -8,6 +9,7 @@ import security.state.Shutdown;
 import security.state.State;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +30,10 @@ public class BaggageScanner implements IBaggageScanner {
 
     public BaggageScanner (HashMap<String, Byte> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<Record> getScanResults () {
+        return Collections.unmodifiableList(scanResults);
     }
 
     public State getCurrentState () {
@@ -150,9 +156,10 @@ public class BaggageScanner implements IBaggageScanner {
         }
 
         // Nothing is taken back from Track02. only from Track01/ManualPostControl.
-        Tray temp = outgoingTracks[0].trays.remove(outgoingTracks[0].trays.size() - 1);
+        Tray temp = outgoingTracks[0].getTrays().remove(outgoingTracks[0].getTrays().size() - 1);
         temp = scanner.move(temp);
-        belt.moveBackwards(temp);
+        if (temp != null)
+            belt.moveBackwards(temp);
         System.out.println("BaggageScanner moved Belt backwards.");
     }
 
@@ -166,8 +173,10 @@ public class BaggageScanner implements IBaggageScanner {
             return;
         }
 
+        currentState = currentState.scan();
         System.out.println("Starting Scan Procedure.");
         scanResults.add(scanner.scan());
+        currentState = currentState.scanDone();
     }
 
     @Override
@@ -182,8 +191,19 @@ public class BaggageScanner implements IBaggageScanner {
 
         System.out.println("*****SCANNER ALERT!!!*****");
         currentState = currentState.lock();
+
         final FederalPoliceOfficer policeOfficer = (FederalPoliceOfficer) this.currentFederalPoliceOfficer;
-        policeOfficer.arrestPassenger(scanner.getCurrentTray().getContainedBaggage().getOwner());
+        final Passenger susPassenger = scanner.getCurrentTray().getContainedBaggage().getOwner();
+
+        policeOfficer.arrestPassenger(susPassenger);
+        manualPostControl.setPresentPassenger(susPassenger);
+        manualPostControl.setPresentOfficers(new FederalPoliceOfficer[3]);
+        manualPostControl.getPresentOfficers()[0] = policeOfficer;
+
+        FederalPoliceOfficer[] reinforcement = policeOfficer.getOffice().requestReinforcment();
+        for (int i = 0 ; i < reinforcement.length ; i++) {
+            manualPostControl.getPresentOfficers()[i + 1] = reinforcement[i];
+        }
     }
 
     @Override

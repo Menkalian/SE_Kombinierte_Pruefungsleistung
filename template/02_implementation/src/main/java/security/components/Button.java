@@ -11,6 +11,14 @@ public class Button {
         this.connectedOperatingStation = connectedOperatingStation;
     }
 
+    public OperatingStation getConnectedOperatingStation () {
+        return connectedOperatingStation;
+    }
+
+    public ButtonIcon getIcon () {
+        return icon;
+    }
+
     public void push () {
         System.out.println("Button with Icon '" + icon + "' pushed.");
         switch (icon) {
@@ -22,8 +30,6 @@ public class Button {
 
     @Override
     public String toString () {
-        return "Button{" +
-               "icon=" + icon +
-               '}';
+        return icon.name();
     }
 }

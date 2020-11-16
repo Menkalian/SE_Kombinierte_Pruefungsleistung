@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Track {
-    public final List<Tray> trays = new LinkedList<>();
+    private final List<Tray> trays = new LinkedList<>();
     private final int trackNumber;
     private final List<Passenger> waitingPassengers = new LinkedList<>();
 
     public Track (int trackNumber) {
         this.trackNumber = trackNumber;
+    }
+
+    public List<Tray> getTrays () {
+        return trays;
     }
 
     public void passengerWaiting (Passenger waiting) {
@@ -38,7 +42,7 @@ public class Track {
 
     public void callPassenger (Passenger called) {
         if (waitingPassengers.contains(called)) {
-            System.out.printf("Calling \"%s\" from outgoing track %d to ManualPostControl.%n", called, trackNumber);
+            System.out.printf("Calling \"%s\" from outgoing track %d to ManualPostControl.%n", called.getName(), trackNumber);
             waitingPassengers.remove(called);
         } else {
             System.out.printf("The called Passenger is not waiting at the Outgoing Track %d.%n", trackNumber);

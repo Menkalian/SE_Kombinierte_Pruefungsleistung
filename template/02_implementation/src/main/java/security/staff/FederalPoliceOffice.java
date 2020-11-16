@@ -10,6 +10,7 @@ import java.util.Random;
 
 public class FederalPoliceOffice {
     private final List<FederalPoliceOfficer> registeredOfficers;
+    // This is no physical representation of passengers. This is just their personal data saved.
     private final List<Passenger> arrestedPassengers;
     private final ExplosiveDisarmRobot[] robots;
 

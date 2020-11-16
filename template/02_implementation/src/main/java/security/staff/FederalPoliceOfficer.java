@@ -20,8 +20,10 @@ public class FederalPoliceOfficer extends Employee {
     }
 
     public void arrestPassenger (Passenger toArrest) {
-        office.takeArrestedPassenger(toArrest);
-        System.out.printf("Passenger \"%s\" was arrested by \"%s\".%n", toArrest.getName(), name);
+        if (!toArrest.isArrested()) {
+            office.takeArrestedPassenger(toArrest);
+            System.out.printf("Passenger \"%s\" was arrested by \"%s\".%n", toArrest.getName(), name);
+        }
     }
 
     public void steerRobot (ExplosiveDisarmRobot robot, BaggageScanner alertedScanner) {
