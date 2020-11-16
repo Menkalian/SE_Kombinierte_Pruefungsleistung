@@ -99,6 +99,7 @@ public class Simulation {
             }
             ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[2]);
             System.out.println("Passenger Baggage was completely scanned.");
+            System.out.println();
         }
 
         employees.get("T").enterPIN(baggageScanner.getOperatingStation().getCardReader());
