@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 fun main() {
-    val rng = Random(26275854485500L)
+    val rng = Random(2627585_4485500_2020L)
 
     // Load allowed chars for Baggage
     val allowedCharsInput = Scanner(File(Passenger::class.java.getResource("allowed_baggage_chars.txt").toURI()))
@@ -62,7 +62,7 @@ fun main() {
     }
     println("Finished generating data. Generated data for ${passengerIndex.get()} Passengers and ${baggageIndex.get()} Baggages.")
     println()
-    val outputDir = File("template/02_implementation/src/main/resources/")
+    val outputDir = File("template/02_implementation/src/main/resources/security/simulation")
     if (outputDir.mkdirs()) {
         println("Created output directory.")
     }
