@@ -40,10 +40,13 @@ public class FederalPoliceOffice {
     }
 
     public void takeArrestedPassenger (Passenger arrested) {
-        System.out.println("Passenger " + arrested.getName() + " was arrested in the FederalPoliceOffice.");
-        arrestedPassengers.add(arrested);
-        System.out.println("Now Arrested Passengers: ");
-        arrestedPassengers.stream().map(Passenger::getName).forEach(System.out::println);
-        System.out.println();
+        if (!arrested.isArrested()) {
+            System.out.println("Passenger " + arrested.getName() + " was arrested and registered at the FederalPoliceOffice.");
+            arrestedPassengers.add(arrested);
+            arrested.setArrested(true);
+            System.out.println("Now Arrested Passengers: ");
+            arrestedPassengers.stream().map(Passenger::getName).forEach(System.out::println);
+            System.out.println();
+        }
     }
 }

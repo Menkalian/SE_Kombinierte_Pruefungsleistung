@@ -42,20 +42,22 @@ fun main() {
         }
 
         // Place forbidden data
-        val placingInformation = current[2].substringAfter("[").substringBefore("]").split(";")
+        for (j in 2 until current.size) {
+            val placingInformation = current[j].substringAfter("[").substringBefore("]").split(";")
 
-        placingInformation.forEach {
-            if (it.length > 1) {
-                val currentInformation = it.split(",")
-                val signatureToPlace = when (currentInformation[0]) {
-                    "W" -> "glock|7"
-                    "K" -> "kn!fe"
-                    "E" -> "exp|os!ve"
-                    else -> throw RuntimeException("unknown signature")
-                }
-                val indexToPlace = rng.nextInt(currentPassenger.baggages[currentInformation[1].toInt() - 1].data[currentInformation[2].toInt() - 1].size - signatureToPlace.length)
-                for (i in 0 until signatureToPlace.length) {
-                    currentPassenger.baggages[currentInformation[1].toInt() - 1].data[currentInformation[2].toInt() - 1][indexToPlace + i] = signatureToPlace[i]
+            placingInformation.forEach {
+                if (it.length > 1) {
+                    val currentInformation = it.split(",")
+                    val signatureToPlace = when (currentInformation[0]) {
+                        "W" -> "glock|7"
+                        "K" -> "kn!fe"
+                        "E" -> "exp|os!ve"
+                        else -> throw RuntimeException("unknown signature")
+                    }
+                    val indexToPlace = rng.nextInt(currentPassenger.baggages[currentInformation[1].toInt() - 1].data[currentInformation[2].toInt() - 1].size - signatureToPlace.length)
+                    for (i in 0 until signatureToPlace.length) {
+                        currentPassenger.baggages[currentInformation[1].toInt() - 1].data[currentInformation[2].toInt() - 1][indexToPlace + i] = signatureToPlace[i]
+                    }
                 }
             }
         }

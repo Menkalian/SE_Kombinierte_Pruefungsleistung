@@ -195,7 +195,10 @@ public class BaggageScanner implements IBaggageScanner {
         final FederalPoliceOfficer policeOfficer = (FederalPoliceOfficer) this.currentFederalPoliceOfficer;
         final Passenger susPassenger = scanner.getCurrentTray().getContainedBaggage().getOwner();
 
-        policeOfficer.arrestPassenger(susPassenger);
+        if (!susPassenger.isArrested()) {
+            outgoingTracks[1].callPassenger(susPassenger);
+            policeOfficer.arrestPassenger(susPassenger);
+        }
         manualPostControl.setPresentPassenger(susPassenger);
         manualPostControl.setPresentOfficers(new FederalPoliceOfficer[3]);
         manualPostControl.getPresentOfficers()[0] = policeOfficer;

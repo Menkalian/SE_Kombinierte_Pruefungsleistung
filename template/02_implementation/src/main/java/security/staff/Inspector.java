@@ -204,8 +204,12 @@ public class Inspector extends Employee {
                 scanner.getOutgoingTracks()[0].getTrays().remove(trayToRemove);
                 continue;
             }
-            trayToRemove = scanner.getOutgoingTracks()[1].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(passengerBaggage)).findFirst().orElseThrow();
-            scanner.getOutgoingTracks()[1].getTrays().remove(trayToRemove);
+            trayToRemove = scanner.getOutgoingTracks()[1].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(passengerBaggage)).findFirst().orElse(null);
+            if (trayToRemove != null) {
+                scanner.getOutgoingTracks()[1].getTrays().remove(trayToRemove);
+                continue;
+            }
+            System.out.println("Some piece of baggage was not present on the Scanner anymore. Assuming it was destroyed.");
         }
 
     }
