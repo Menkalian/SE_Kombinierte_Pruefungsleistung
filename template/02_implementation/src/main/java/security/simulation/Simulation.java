@@ -27,7 +27,9 @@ import security.staff.Supervisor;
 import security.staff.Technician;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,11 +54,11 @@ public class Simulation {
 
 
     public static void main (String[] args) {
-//        try {
-//            System.setOut(new PrintStream(new File("log.txt")));
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            System.setOut(new PrintStream(new File("log.txt")));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         Builder simulationBuilder = new Builder();
         simulationBuilder.defaultEmployees();
         try {
@@ -236,7 +238,7 @@ public class Simulation {
             baggageScanner.setBelt(new Belt());
             baggageScanner.setScanner(new Scanner(config.getSearchAlgorithm()));
             baggageScanner.setOutgoingTracks(outgoing);
-            baggageScanner.setManualPostControl(new ManualPostControl(outgoing[1], baggageScanner, new ExplosivesTraceDetector()));
+            baggageScanner.setManualPostControl(new ManualPostControl(outgoing[0], baggageScanner, new ExplosivesTraceDetector()));
             baggageScanner.setSupervision(new Supervision(baggageScanner));
             baggageScanner.setOperatingStation(operatingStation);
 
