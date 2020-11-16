@@ -3,7 +3,7 @@ package security.algorithm;
 // Implementation taken from provided Library
 public class BoyerMoore implements IStringMatching {
     @Override
-    public int search(String text, String pattern) {
+    public int search (String text, String pattern) {
         int[] last = buildLast(pattern);
         int n = text.length();
         int m = pattern.length();
@@ -33,14 +33,14 @@ public class BoyerMoore implements IStringMatching {
         return -1;
     }
 
-    public int[] buildLast(String pattern) {
+    public int[] buildLast (String pattern) {
         int[] last = new int[128];
 
-        for (int i = 0; i < 128; i++) {
+        for (int i = 0 ; i < 128 ; i++) {
             last[i] = -1;
         }
 
-        for (int i = 0; i < pattern.length(); i++) {
+        for (int i = 0 ; i < pattern.length() ; i++) {
             last[pattern.charAt(i)] = i;
         }
 

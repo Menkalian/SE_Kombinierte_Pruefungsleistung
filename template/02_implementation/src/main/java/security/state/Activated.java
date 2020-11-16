@@ -1,18 +1,18 @@
 package security.state;
 
-public class Activated extends State{
+public class Activated extends State {
     @Override
     public State allScansDone () {
-        return super.allScansDone();
+        return new Maintenance();
     }
 
     @Override
     public State lock () {
-        return super.lock();
+        return new Locked();
     }
 
     @Override
     public State scan () {
-        return super.scan();
+        return new InUse();
     }
 }

@@ -3,7 +3,7 @@ package security.algorithm;
 // Implementation taken from provided Library
 public class KnuthMorrisPratt implements IStringMatching {
     @Override
-    public int search(String text, String pattern) {
+    public int search (String text, String pattern) {
         int n = text.length();
         int m = pattern.length();
 
@@ -28,7 +28,7 @@ public class KnuthMorrisPratt implements IStringMatching {
         return -1;
     }
 
-    public int[] computeFail(String pattern) {
+    public int[] computeFail (String pattern) {
         int[] fail = new int[pattern.length()];
         fail[0] = 0;
         int m = pattern.length();

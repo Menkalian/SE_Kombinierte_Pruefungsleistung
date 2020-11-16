@@ -44,4 +44,12 @@ public class IDCard {
     public TypeOfIDCard getType () {
         return type;
     }
+
+    public Employee getOwner () {
+        return owner;
+    }
+
+    public void setOwner (Employee owner) {
+        this.owner = owner;
+    }
 }

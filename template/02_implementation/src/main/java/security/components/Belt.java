@@ -5,26 +5,21 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class Belt {
 
-    private BaggageScanner connectedScanner;
-    private Deque<Tray> trayQueue = new LinkedBlockingDeque<>();
+    private final Deque<Tray> trayQueue = new LinkedBlockingDeque<>();
 
-    public BaggageScanner getConnectedScanner () {
-        return connectedScanner;
-    }
-
-    public void setConnectedScanner (BaggageScanner connectedScanner) {
-        this.connectedScanner = connectedScanner;
+    public Deque<Tray> getTrayQueue () {
+        return trayQueue;
     }
 
     public Tray moveRight () {
-        return null;
+        return trayQueue.pollFirst();
     }
 
     public void moveBackwards (Tray fromScanner) {
-
+        trayQueue.addFirst(fromScanner);
     }
 
     public void queueTray (Tray tray) {
-
+        trayQueue.addLast(tray);
     }
 }

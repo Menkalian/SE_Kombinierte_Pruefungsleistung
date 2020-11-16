@@ -6,7 +6,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SimulationTest {
     @Test
-    public void testJUnitWorking(){
+    public void testJUnitWorking () {
         Assertions.assertFalse(false);
     }
 }
