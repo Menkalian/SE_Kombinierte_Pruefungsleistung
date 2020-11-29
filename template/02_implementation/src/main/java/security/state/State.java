@@ -4,8 +4,9 @@ import java.util.Arrays;
 
 public abstract class State {
     public State () {
-        System.out.println("Changing to State: " + getClass().getSimpleName());
+        System.out.println("BagScanState: Changing to State " + getClass().getSimpleName());
     }
+
 
     public State start () {
         throw new InvalidStateTransitionException();
@@ -43,11 +44,13 @@ public abstract class State {
     @Override
     public String toString () {
         char[] toReturn = new char[21]; // 21 is the required length for Report
-        Arrays.fill(toReturn, ' ');
         final char[] classname = getClass().getSimpleName().toCharArray();
+
+        Arrays.fill(toReturn, ' ');
         for (int i = 0 ; i < classname.length ; i++) {
             toReturn[i] = Character.toUpperCase(classname[i]);
         }
+
         return String.valueOf(toReturn);
     }
 }

@@ -9,6 +9,16 @@ public abstract class Employee {
     protected String birthDate;
     protected IDCard idCard;
 
+
+    public void enterPIN (CardReader terminal) {
+        System.out.println("Employee    : \"" + name + "\" is trying to authenticate at the CardReader");
+
+        // Default value for PIN = Year of birth. Completely safe ;-)
+        terminal.swipeCard(idCard);
+        terminal.enterPin(birthDate.split("\\.")[2]);
+    }
+
+
     public IDCard getIdCard () {
         return idCard;
     }
@@ -17,22 +27,18 @@ public abstract class Employee {
         this.idCard = idCard;
     }
 
+
     public String getId () {
         return id;
     }
+
 
     public String getName () {
         return name;
     }
 
+
     public String getBirthDate () {
         return birthDate;
-    }
-
-    public void enterPIN (CardReader terminal) {
-        System.out.println(name + " is trying to authenticate at the CardReader");
-        terminal.swipeCard(idCard);
-        // Default value for PIN = Year of birth. Completely safe ;-)
-        terminal.enterPin(birthDate.split("\\.")[2]);
     }
 }

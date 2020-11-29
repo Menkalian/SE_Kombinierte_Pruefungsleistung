@@ -10,6 +10,7 @@ public class Configuration {
     private final IStringMatching searchAlgorithm;
     private final String aesKey;
 
+
     public Configuration () {
         // Define Permissions
         permissions = new HashMap<>();
@@ -26,13 +27,16 @@ public class Configuration {
         aesKey = "$e(uR€";
     }
 
+
     public HashMap<String, Byte> getPermissions () {
         return permissions;
     }
 
+
     public IStringMatching getSearchAlgorithm () {
         return searchAlgorithm;
     }
+
 
     public String getAesKey () {
         return aesKey;

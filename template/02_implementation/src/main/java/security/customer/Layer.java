@@ -4,6 +4,7 @@ public class Layer {
 
     private char[] content;
 
+
     public Layer (String content) {
         this.content = content.toCharArray();
     }

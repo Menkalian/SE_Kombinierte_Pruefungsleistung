@@ -6,21 +6,15 @@ public class Button {
     private final ButtonIcon icon;
     private final OperatingStation connectedOperatingStation;
 
+
     public Button (ButtonIcon icon, OperatingStation connectedOperatingStation) {
         this.icon = icon;
         this.connectedOperatingStation = connectedOperatingStation;
     }
 
-    public OperatingStation getConnectedOperatingStation () {
-        return connectedOperatingStation;
-    }
-
-    public ButtonIcon getIcon () {
-        return icon;
-    }
 
     public void push () {
-        System.out.println("Button with Icon '" + icon + "' pushed.");
+        System.out.println("Button      : Performing action for Button with icon '" + icon + "'");
         switch (icon) {
             case LEFT_ARROW -> connectedOperatingStation.getConnectedScanner().moveBeltBackwards();
             case RECTANGLE -> connectedOperatingStation.getConnectedScanner().scan();
@@ -30,6 +24,15 @@ public class Button {
 
     @Override
     public String toString () {
-        return icon.name();
+        return "Icon: " + icon.name();
+    }
+
+
+    public OperatingStation getConnectedOperatingStation () {
+        return connectedOperatingStation;
+    }
+
+    public ButtonIcon getIcon () {
+        return icon;
     }
 }

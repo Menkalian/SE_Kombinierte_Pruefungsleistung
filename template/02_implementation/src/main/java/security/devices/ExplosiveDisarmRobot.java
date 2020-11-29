@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 public class ExplosiveDisarmRobot {
     public void destroyBaggage (HandBaggage toDestroy) {
-        System.out.println("Destroying HandBaggage of \"" + toDestroy.getOwner().getName() + "\"");
-        System.out.println("Created Pieces:");
+        System.out.println("ExpDisarmBot: Destroying HandBaggage of \"" + toDestroy.getOwner().getName() + "\"");
+        System.out.println("ExpDisarmBot: Created Pieces:");
         Arrays.stream(toDestroy.getLayers())
               .map(Layer::getContent)
               .map(chars -> {
@@ -17,7 +17,11 @@ public class ExplosiveDisarmRobot {
                       toReturn[i] = Arrays.copyOfRange(chars, 50 * i, 50 * (i + 1));
                   }
                   return toReturn;
-              }).forEach(c -> Arrays.stream(c).map(String::new).forEach(System.out::println));
+              })
+              .forEach(c -> Arrays
+                      .stream(c).map(String::new)
+                      .forEach(str -> System.out.printf("JUNK        : %s%n", str))
+              );
         toDestroy.setLayers(null);
     }
 }

@@ -9,32 +9,195 @@ import security.state.Shutdown;
 import security.state.State;
 
 import java.text.DecimalFormat;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 public class BaggageScanner implements IBaggageScanner {
-    private final List<Record> scanResults = new LinkedList<>();
+
+    //region Data/Information
+    private final LinkedList<Record> scanResults = new LinkedList<>(); // Linked List for getLast()
     private final HashMap<String, Byte> permissions;
     private State currentState = new Shutdown();
-    private Employee currentFederalPoliceOfficer;
-    private TraySupplyment traySupplyment;
+    //endregion Data/Information
+    //region Components
+    private TraySupplement traySupplement;
     private RollerConveyor rollerConveyor;
     private Belt belt;
     private Scanner scanner;
     private Track[] outgoingTracks;
     private ManualPostControl manualPostControl;
+
     private OperatingStation operatingStation;
     private Supervision supervision;
+    //endregion Components
+    private Employee currentFederalPoliceOfficer;
+
 
     public BaggageScanner (HashMap<String, Byte> permissions) {
         this.permissions = permissions;
     }
 
-    public List<Record> getScanResults () {
-        return Collections.unmodifiableList(scanResults);
+
+    @Override
+    public void moveBeltForward () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        System.out.println("Bag. Scanner: Moving Belt forwards");
+        Tray temp = belt.moveRight();
+        temp = scanner.move(temp);
+
+        if (temp != null) {
+            if (scanResults.getLast().getResult().getType() == ScanResultType.CLEAN) {
+                outgoingTracks[1].trayArrive(temp);
+            } else {
+                // Should not happen. A dangerous item is forwarded directly after the scan. This is just a failsafe.
+                outgoingTracks[0].trayArrive(temp);
+            }
+        }
     }
+
+    @Override
+    public void moveBeltBackwards () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1 << 1) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        System.out.println("Bag. Scanner: Moving Belt backwards");
+
+        // Nothing is taken back from Track02. only from Track01/ManualPostControl.
+        Tray temp = outgoingTracks[0].getTrays().removeLast();
+        temp = scanner.move(temp);
+        if (temp != null)
+            belt.moveBackwards(temp);
+    }
+
+    @Override
+    public void scan () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1 << 2) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        currentState = currentState.scan();
+        System.out.println("Bag. Scanner: Starting Scan Procedure");
+        scanResults.add(scanner.scan());
+        currentState = currentState.scanDone();
+    }
+
+    @Override
+    public void alert () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1 << 3) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        System.out.println("Bag. Scanner: Alert triggered");
+        System.out.println("              \u001B[1;31m**********!!SCANNER ALERT!!**********\u001B[0m"); // Red,Bold ANSI Color
+        currentState = currentState.lock();
+
+        // Get the needed people
+        final FederalPoliceOfficer policeOfficer = (FederalPoliceOfficer) this.currentFederalPoliceOfficer;
+        final Passenger susPassenger = manualPostControl.getBelongingTrack().getTrays().getLast().getContainedBaggage().getOwner();
+
+        // Get the people where they need to be
+        if (!susPassenger.isArrested()) {
+            outgoingTracks[1].callPassenger(susPassenger);
+            policeOfficer.arrestPassenger(susPassenger);
+        }
+        manualPostControl.setPresentPassenger(susPassenger);
+        manualPostControl.setPresentOfficers(new FederalPoliceOfficer[3]);
+        manualPostControl.getPresentOfficers()[0] = policeOfficer;
+
+        FederalPoliceOfficer[] reinforcement = policeOfficer.getOffice().requestReinforcement();
+        for (int i = 0 ; i < reinforcement.length ; i++) {
+            manualPostControl.getPresentOfficers()[i + 1] = reinforcement[i];
+        }
+    }
+
+    @Override
+    public void report () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1 << 4) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        DecimalFormat format = new DecimalFormat("0000");
+
+        System.out.println("Bag. Scanner: Generating Report");
+        // Header
+        System.out.println("REPORT      : #########################");
+        System.out.println("REPORT      : #### SCANNER REPORT #####");
+        System.out.println("REPORT      : #########################");
+
+        // General Data
+        System.out.println("REPORT      : # Current-State:        #");
+        System.out.printf("REPORT      : # %s #%n", currentState.toString());
+        System.out.printf("REPORT      : # Performed-Scans: %s #%n", format.format(scanResults.size()));
+        System.out.println("REPORT      : #########################");
+
+        // Scan Results
+        System.out.println("REPORT      : ##### SCAN RESULTS ######");
+        System.out.println("REPORT      : #                       #");
+        scanResults.forEach(System.out::println);
+        System.out.println("REPORT      : #                       #");
+
+        // Footer
+        System.out.println("REPORT      : #########################");
+        System.out.println("REPORT      : ##### END OF REPORT #####");
+        System.out.println("REPORT      : #########################");
+    }
+
+    @Override
+    public void maintenance () {
+        //region Check for rights
+        String authenticated = operatingStation.getAuthenticatedUserType();
+        byte permission = permissions.get(authenticated);
+        if ((permission & 1 << 5) == 0) {
+            System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
+            return;
+        }
+        //endregion Check for rights
+
+        currentState = currentState.allScansDone();
+        // Placebo Messages ;-)
+        System.out.println("Performing Maintenance");
+        System.out.println("Transmitting data...");
+        System.out.println("Checking for errors...");
+        System.out.println("No errors detected.");
+        System.out.println("Maintenance complete!");
+        System.out.println("Initiating Shutdown");
+    }
+
+
+    public LinkedList<Record> getScanResults () {
+        // Return a copy to prevent modification of the original (Collections.unmodifiableList does not give a LinkedList)
+        return new LinkedList<>(scanResults);
+    }
+
 
     public State getCurrentState () {
         return currentState;
@@ -44,9 +207,11 @@ public class BaggageScanner implements IBaggageScanner {
         this.currentState = currentState;
     }
 
+
     public HashMap<String, Byte> getPermissions () {
         return permissions;
     }
+
 
     public Employee getCurrentFederalPoliceOfficer () {
         return currentFederalPoliceOfficer;
@@ -56,13 +221,15 @@ public class BaggageScanner implements IBaggageScanner {
         this.currentFederalPoliceOfficer = currentFederalPoliceOfficer;
     }
 
-    public TraySupplyment getTraySupplyment () {
-        return traySupplyment;
+
+    public TraySupplement getTraySupplement () {
+        return traySupplement;
     }
 
-    public void setTraySupplyment (TraySupplyment traySupplyment) {
-        this.traySupplyment = traySupplyment;
+    public void setTraySupplement (TraySupplement traySupplement) {
+        this.traySupplement = traySupplement;
     }
+
 
     public RollerConveyor getRollerConveyor () {
         return rollerConveyor;
@@ -72,6 +239,7 @@ public class BaggageScanner implements IBaggageScanner {
         this.rollerConveyor = rollerConveyor;
     }
 
+
     public Belt getBelt () {
         return belt;
     }
@@ -79,6 +247,7 @@ public class BaggageScanner implements IBaggageScanner {
     public void setBelt (Belt belt) {
         this.belt = belt;
     }
+
 
     public Scanner getScanner () {
         return scanner;
@@ -88,6 +257,7 @@ public class BaggageScanner implements IBaggageScanner {
         this.scanner = scanner;
     }
 
+
     public Track[] getOutgoingTracks () {
         return outgoingTracks;
     }
@@ -95,6 +265,7 @@ public class BaggageScanner implements IBaggageScanner {
     public void setOutgoingTracks (Track[] outgoingTracks) {
         this.outgoingTracks = outgoingTracks;
     }
+
 
     public ManualPostControl getManualPostControl () {
         return manualPostControl;
@@ -104,6 +275,7 @@ public class BaggageScanner implements IBaggageScanner {
         this.manualPostControl = manualPostControl;
     }
 
+
     public OperatingStation getOperatingStation () {
         return operatingStation;
     }
@@ -112,147 +284,12 @@ public class BaggageScanner implements IBaggageScanner {
         this.operatingStation = operatingStation;
     }
 
+
     public Supervision getSupervision () {
         return supervision;
     }
 
     public void setSupervision (Supervision supervision) {
         this.supervision = supervision;
-    }
-
-    @Override
-    public void moveBeltForward () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        // Readability/Understandability ->
-        //noinspection PointlessBitwiseExpression
-        if ((permission & 1 << 0) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        Tray temp = belt.moveRight();
-        temp = scanner.move(temp);
-        if (temp != null) {
-            if (scanResults.get(scanResults.size() - 1).getResult().getType() == ScanResultType.CLEAN) {
-                outgoingTracks[1].trayArrive(temp);
-            } else {
-                // Should not happen. A dangerous item is forwarded directly after the scan. This is just a failsafe.
-                outgoingTracks[0].trayArrive(temp);
-            }
-        }
-        System.out.println("BaggageScanner moved Belt forwards.");
-    }
-
-    @Override
-    public void moveBeltBackwards () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        if ((permission & 1 << 1) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        // Nothing is taken back from Track02. only from Track01/ManualPostControl.
-        Tray temp = outgoingTracks[0].getTrays().remove(outgoingTracks[0].getTrays().size() - 1);
-        temp = scanner.move(temp);
-        if (temp != null)
-            belt.moveBackwards(temp);
-        System.out.println("BaggageScanner moved Belt backwards.");
-    }
-
-    @Override
-    public void scan () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        if ((permission & 1 << 2) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        currentState = currentState.scan();
-        System.out.println("Starting Scan Procedure.");
-        scanResults.add(scanner.scan());
-        currentState = currentState.scanDone();
-    }
-
-    @Override
-    public void alert () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        if ((permission & 1 << 3) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        System.out.println("*****SCANNER ALERT!!!*****");
-        currentState = currentState.lock();
-
-        final FederalPoliceOfficer policeOfficer = (FederalPoliceOfficer) this.currentFederalPoliceOfficer;
-        final Passenger susPassenger = scanner.getCurrentTray().getContainedBaggage().getOwner();
-
-        if (!susPassenger.isArrested()) {
-            outgoingTracks[1].callPassenger(susPassenger);
-            policeOfficer.arrestPassenger(susPassenger);
-        }
-        manualPostControl.setPresentPassenger(susPassenger);
-        manualPostControl.setPresentOfficers(new FederalPoliceOfficer[3]);
-        manualPostControl.getPresentOfficers()[0] = policeOfficer;
-
-        FederalPoliceOfficer[] reinforcement = policeOfficer.getOffice().requestReinforcment();
-        for (int i = 0 ; i < reinforcement.length ; i++) {
-            manualPostControl.getPresentOfficers()[i + 1] = reinforcement[i];
-        }
-    }
-
-    @Override
-    public void report () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        if ((permission & 1 << 4) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        DecimalFormat format = new DecimalFormat("0000");
-
-        System.out.println("#########################");
-        System.out.println("#### SCANNER REPORT #####");
-        System.out.println("#########################");
-        System.out.println("# Current-State:        #");
-        System.out.println("# " + currentState.toString() + " #");
-        System.out.println("# Performed-Scans: " + format.format(scanResults.size()) + "#");
-        System.out.println("#########################");
-        System.out.println("##### SCAN RESULTS ######");
-        System.out.println("#                       #");
-        scanResults.forEach(System.out::println);
-        System.out.println("#                       #");
-        System.out.println("#########################");
-        System.out.println("##### END OF REPORT #####");
-        System.out.println("#########################");
-    }
-
-    @Override
-    public void maintenance () {
-        // Check for rights
-        String authenticated = operatingStation.getAuthenticatedUserType();
-        byte permission = permissions.get(authenticated);
-        if ((permission & 1 << 5) == 0) {
-            System.out.println("*** WARNING: RIGHTS NOT SUFFICIENT ***");
-            return;
-        }
-
-        currentState = currentState.allScansDone();
-        System.out.println("Performing Maintenance");
-        System.out.println("Transmitting data...");
-        System.out.println("Checking for errors...");
-        System.out.println("No errors detected.");
-        System.out.println("Maintenance complete!");
-        System.out.println("Initiating Shutdown");
     }
 }

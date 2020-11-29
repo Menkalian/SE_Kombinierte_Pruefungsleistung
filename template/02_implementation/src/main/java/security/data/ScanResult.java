@@ -10,11 +10,35 @@ public class ScanResult {
     private final ProhibitedItem itemType;
     private final int[] position;
 
+
     public ScanResult (ScanResultType type, ProhibitedItem itemType, int[] position) {
         this.type = type;
         this.itemType = itemType;
         this.position = position;
     }
+
+
+    @Override
+    public String toString () {
+        if (type == ScanResultType.CLEAN) {
+            return "REPORT      : #         CLEAN         #\n" +
+                   "REPORT      : #                       #";
+        } else {
+            DecimalFormat positionFormat = new DecimalFormat("00000");
+            return ("""
+                    REPORT      : #  PROHIBITED ITEM AT:  #
+                    REPORT      : #    Layer %d            #
+                    REPORT      : #    Position %s     #
+                    REPORT      : # Type: %s #
+                    REPORT      : #                       #""")
+                    .formatted(
+                            position[0],
+                            positionFormat.format(position[1]),
+                            itemType.toString()
+                    );
+        }
+    }
+
 
     public ScanResultType getType () {
         return type;
@@ -26,21 +50,5 @@ public class ScanResult {
 
     public int[] getPosition () {
         return position;
-    }
-
-
-    @Override
-    public String toString () {
-        if (type == ScanResultType.CLEAN) {
-            return "#         CLEAN         #\n" +
-                   "#                       #";
-        } else {
-            DecimalFormat positionFormat = new DecimalFormat("00000");
-            return "#  PROHIBITED ITEM AT:  #\n" +
-                   "#    Layer " + position[0] + "            #\n" +
-                   "#    Position " + positionFormat.format(position[1]) + "     #\n" +
-                   "# Type: " + itemType.toString() + " #\n" +
-                   "#                       #";
-        }
     }
 }

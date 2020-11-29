@@ -10,7 +10,7 @@ import security.components.RollerConveyor;
 import security.components.Scanner;
 import security.components.Supervision;
 import security.components.Track;
-import security.components.TraySupplyment;
+import security.components.TraySupplement;
 import security.customer.HandBaggage;
 import security.customer.Layer;
 import security.customer.Passenger;
@@ -27,9 +27,7 @@ import security.staff.Supervisor;
 import security.staff.Technician;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,11 +52,6 @@ public class Simulation {
 
 
     public static void main (String[] args) {
-        try {
-            System.setOut(new PrintStream(new File("log.txt")));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
         Builder simulationBuilder = new Builder();
         simulationBuilder.defaultEmployees();
         try {
@@ -71,6 +64,7 @@ public class Simulation {
         build.runSimulation();
     }
 
+
     public void initializeSimulation () {
         // Place Employees
         baggageScanner.getRollerConveyor().setWorkingInspector(employees.get("I1"));
@@ -80,8 +74,9 @@ public class Simulation {
         baggageScanner.setCurrentFederalPoliceOfficer(employees.get("O1"));
 
         // Add Passengers
-        baggageScanner.getTraySupplyment().getPassengerQueue().addAll(passengers);
+        baggageScanner.getTraySupplement().getPassengerQueue().addAll(passengers);
     }
+
 
     public void runSimulation () {
         // Turn Scanner on
@@ -90,9 +85,10 @@ public class Simulation {
         // Activate Scanner
         baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
 
-        while (!baggageScanner.getTraySupplyment().getPassengerQueue().isEmpty()) {
-            System.out.println("Next passenger is going through the scanner.");
-            baggageScanner.getTraySupplyment().nextPassenger();
+        // Scan all passengers' baggage
+        while (!baggageScanner.getTraySupplement().getPassengerQueue().isEmpty()) {
+            System.out.println("Simulation  : Next passenger is going through the scanner");
+            baggageScanner.getTraySupplement().nextPassenger();
             ((Inspector) employees.get("I1")).pushTray(baggageScanner);
 
             while (!baggageScanner.getBelt().getTrayQueue().isEmpty()) {
@@ -100,23 +96,44 @@ public class Simulation {
                 ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[1]);
             }
             ((Inspector) employees.get("I2")).pushButton(baggageScanner.getOperatingStation().getButtons()[2]);
-            System.out.println("Passenger Baggage was completely scanned.");
+            System.out.println("Simulation  : Passenger Baggage was completely scanned");
             System.out.println();
         }
 
+        // Maintenance
         employees.get("T").enterPIN(baggageScanner.getOperatingStation().getCardReader());
         ((Technician) employees.get("T")).performMaintenance(baggageScanner);
 
+        // Turn off and get the report
         ((Supervisor) employees.get("S")).switchPower(baggageScanner);
         employees.get("S").enterPIN(baggageScanner.getOperatingStation().getCardReader());
         baggageScanner.report();
-
     }
+
+
+    // Getter for testing
+    public BaggageScanner getBaggageScanner () {
+        return baggageScanner;
+    }
+
+    public List<Passenger> getPassengers () {
+        return passengers;
+    }
+
+    public Map<String, Employee> getEmployees () {
+        return employees;
+    }
+
+    public FederalPoliceOffice getPoliceOffice () {
+        return policeOffice;
+    }
+
 
     public static class Builder {
         private final List<Passenger> passengers = new LinkedList<>();
         private final Map<String, Employee> employees = new HashMap<>();
         private final Configuration config = new Configuration();
+
 
         public void addEmployee (Employee employee) {
             employees.put(employee.getId(), employee);
@@ -126,6 +143,7 @@ public class Simulation {
             passengers.add(passenger);
         }
 
+        // Default Configurations
         public void defaultEmployees () {
             addEmployee(new Inspector("I1", "Clint Eastwood", "31.05.1930", true));
             addEmployee(new Inspector("I2", "Natalie Portman", "09.06.1981", false));
@@ -161,6 +179,7 @@ public class Simulation {
             }
         }
 
+
         public Simulation build () {
             // Structures to fill
             FederalPoliceOffice policeOffice = new FederalPoliceOffice();
@@ -170,35 +189,35 @@ public class Simulation {
             employees.forEach((id, employee) -> {
                 String pin = employee.getBirthDate().split("\\.")[2];
                 TypeOfIDCard cardType;
-                String profiletype;
+                String typeOfProfile;
 
                 switch (employee.getClass().getSimpleName()) {
                     case "Inspector" -> {
                         cardType = TypeOfIDCard.STAFF;
-                        profiletype = "I";
+                        typeOfProfile = "I";
                     }
                     case "Supervisor" -> {
                         cardType = TypeOfIDCard.STAFF;
-                        profiletype = "S";
+                        typeOfProfile = "S";
                     }
                     case "FederalPoliceOfficer" -> {
                         cardType = TypeOfIDCard.EXTERNAL;
-                        profiletype = "O";
+                        typeOfProfile = "O";
                     }
                     case "Technician" -> {
                         cardType = TypeOfIDCard.EXTERNAL;
-                        profiletype = "T";
+                        typeOfProfile = "T";
                     }
                     default -> {
-                        // Unknown Employeetype
+                        // Unknown Employee type
                         cardType = TypeOfIDCard.EXTERNAL;
-                        profiletype = "K";
+                        typeOfProfile = "K";
                     }
                 }
 
-                String stripe = "***" + profiletype + "***" + pin + "***";
-                AES encrypter = new AES(config.getAesKey());
-                stripe = encrypter.encrypt(stripe);
+                String stripe = "***" + typeOfProfile + "***" + pin + "***";
+                AES encryptor = new AES(config.getAesKey());
+                stripe = encryptor.encrypt(stripe);
 
                 IDCard idCard = new IDCard(employee.getId().hashCode(), Instant.ofEpochMilli(1672527599000L), stripe, false, cardType);
                 employee.setIdCard(idCard);
@@ -233,7 +252,7 @@ public class Simulation {
             operatingStation.setButtons(buttons);
 
             // Assemble the pieces
-            baggageScanner.setTraySupplyment(new TraySupplyment(baggageScanner));
+            baggageScanner.setTraySupplement(new TraySupplement(baggageScanner));
             baggageScanner.setRollerConveyor(new RollerConveyor(baggageScanner));
             baggageScanner.setBelt(new Belt());
             baggageScanner.setScanner(new Scanner(config.getSearchAlgorithm()));

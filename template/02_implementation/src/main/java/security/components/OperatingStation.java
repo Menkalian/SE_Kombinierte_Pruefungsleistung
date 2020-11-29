@@ -12,13 +12,16 @@ public class OperatingStation {
     private CardReader cardReader;
     private Button[] buttons;
 
+
     public OperatingStation (BaggageScanner connectedScanner) {
         this.connectedScanner = connectedScanner;
     }
 
+
     public BaggageScanner getConnectedScanner () {
         return connectedScanner;
     }
+
 
     public String getAuthenticatedUserType () {
         return authenticatedUserType;
@@ -26,13 +29,18 @@ public class OperatingStation {
 
     public void setAuthenticatedUserType (String authenticatedUserType) {
         this.authenticatedUserType = authenticatedUserType;
+
+        // trigger necessary state transitions
         if (connectedScanner.getCurrentState() instanceof Deactivated) {
+            System.out.println("Op. Station : Activating Scanner");
             connectedScanner.setCurrentState(connectedScanner.getCurrentState().authenticated());
         }
         if (authenticatedUserType.equals("S") && this.getConnectedScanner().getCurrentState() instanceof Locked) {
+            System.out.println("Op. Station : Unlocking Scanner");
             connectedScanner.setCurrentState(connectedScanner.getCurrentState().unlock());
         }
     }
+
 
     public Employee getPresentUser () {
         return presentUser;
@@ -42,6 +50,7 @@ public class OperatingStation {
         this.presentUser = presentUser;
     }
 
+
     public CardReader getCardReader () {
         return cardReader;
     }
@@ -49,6 +58,7 @@ public class OperatingStation {
     public void setCardReader (CardReader cardReader) {
         this.cardReader = cardReader;
     }
+
 
     public Button[] getButtons () {
         return buttons;

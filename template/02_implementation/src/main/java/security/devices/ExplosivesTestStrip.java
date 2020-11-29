@@ -6,6 +6,7 @@ import java.util.Random;
 public class ExplosivesTestStrip {
     private final char[][] stripe;
 
+
     public ExplosivesTestStrip () {
         stripe = new char[30][10];
         for (char[] chars : stripe) {
@@ -20,6 +21,7 @@ public class ExplosivesTestStrip {
         stripe[row][column + 1] = 'x';
         stripe[row][column + 2] = 'p'; // Not necessary, since p is already written
     }
+
 
     public char[][] getStripe () {
         return stripe;

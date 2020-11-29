@@ -30,9 +30,9 @@ public class Record {
     public String toString () {
         DecimalFormat idFormat = new DecimalFormat("000");
 
-        return "# Scan " + idFormat.format(id) + "   Timestamp: #\n" +
-               "#" + timestamp + "#\n" +
-               "# Result:               #\n" +
+        return "REPORT      : # Scan " + idFormat.format(id) + "   Timestamp: #\n" +
+               "REPORT      : #" + timestamp + "#\n" +
+               "REPORT      : # Result:               #\n" +
                result.toString();
     }
 }

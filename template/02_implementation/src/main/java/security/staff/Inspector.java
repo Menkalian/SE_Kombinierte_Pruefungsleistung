@@ -11,15 +11,19 @@ import security.customer.Passenger;
 import security.data.Record;
 import security.data.ScanResult;
 import security.data.enums.ButtonIcon;
+import security.data.enums.ProhibitedItem;
 import security.data.enums.ScanResultType;
 import security.devices.ExplosivesTestStrip;
+import security.state.Locked;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Inspector extends Employee {
     private final boolean isSenior;
+
 
     public Inspector (String id, String name, String birthDate, boolean isSenior) {
         this.id = id;
@@ -28,155 +32,152 @@ public class Inspector extends Employee {
         this.isSenior = isSenior;
     }
 
+
     public void pushTray (BaggageScanner scanner) {
-        while (!scanner.getRollerConveyor().getTrayQueue().isEmpty())
+        while (!scanner.getRollerConveyor().getTrayQueue().isEmpty()) {
+            System.out.printf("Inspector   : \"%s\" is pushing a Tray%n", getName());
             scanner.getRollerConveyor().pushTrays();
+        }
     }
 
     public void pushButton (Button button) {
-        System.out.println("Inspector \"" + name + "\" is pushing the Button \"" + button.toString() + "\".");
+        System.out.printf("Inspector   : \"%s\" is pushing the Button \"%s\".%n", getName(), button.toString());
         button.push();
+
         // React to Scan-Result
         if (button.getIcon() == ButtonIcon.RECTANGLE) {
             final BaggageScanner baggageScanner = button.getConnectedOperatingStation().getConnectedScanner();
-            final List<Record> scanResults = baggageScanner.getScanResults();
-            final Record lastResult = scanResults.get(scanResults.size() - 1);
+            final Record lastResult = baggageScanner.getScanResults().getLast();
+
             if (lastResult.getResult().getType() == ScanResultType.CLEAN) {
-                System.out.println("Inspector \"" + getName() + "\" identified the scan as clean. Proceeding as usual.");
+                System.out.printf("Inspector   : \"%s\" identified the scan as clean. No special action is needed%n", getName());
             } else {
-                switch (lastResult.getResult().getItemType()) {
-                    case KNIFE -> {
-                        System.out.println("Inspector \"" + getName() + "\" recognized a knife. Rerouting baggage to ManualPostControl");
-                        final Tray scannedTray = baggageScanner.getScanner().move(null);
-                        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
-                        ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).notifyKnife(baggageScanner);
-                    }
-                    case WEAPON -> {
-                        System.out.println("Inspector \"" + getName() + "\" recognized a weapon. Rerouting baggage to ManualPostControl");
-                        triggerAlert(baggageScanner);
-                        final Tray scannedTray = baggageScanner.getScanner().move(null);
-                        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
-
-                        ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).notifyWeapon(baggageScanner);
-
-                        // People leaving.
-                        baggageScanner.getManualPostControl().setPresentOfficers(null);
-                        baggageScanner.getManualPostControl().setPresentPassenger(null);
-
-                        // Continue scanning
-                        ((Supervisor) baggageScanner.getSupervision().getSupervisor()).unlockScanner(baggageScanner);
-                        baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
-                    }
-                    case EXPLOSIVE -> {
-                        System.out.println("Inspector \"" + getName() + "\" recognized an explosive. Rerouting baggage to ManualPostControl");
-                        triggerAlert(baggageScanner);
-                        final Tray scannedTray = baggageScanner.getScanner().move(null);
-                        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
-                        baggageScanner.getManualPostControl().setCurrentTrayToInvestigate(baggageScanner.getOutgoingTracks()[0].getTrays().remove(baggageScanner.getOutgoingTracks()[0].getTrays().size() - 1));
-
-                        // Save the persons baggage to remove it from the scanner later
-                        final List<HandBaggage> toRemove = Arrays.stream(baggageScanner.getManualPostControl().getPresentPassenger().getBaggage()).collect(Collectors.toList());
-                        toRemove.remove(scannedTray.getContainedBaggage());
-                        ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).testBaggageForExplosives(baggageScanner.getManualPostControl());
-
-                        // Remove Baggage from Scanner
-                        for (HandBaggage handBaggage : toRemove) {
-                            Tray trayToRemove = baggageScanner.getBelt().getTrayQueue().stream().filter(tray -> tray.getContainedBaggage().equals(handBaggage)).findFirst().orElse(null);
-                            if (trayToRemove != null) {
-                                baggageScanner.getBelt().getTrayQueue().remove(trayToRemove);
-                                continue;
-                            }
-                            trayToRemove = baggageScanner.getOutgoingTracks()[0].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(handBaggage)).findFirst().orElse(null);
-                            if (trayToRemove != null) {
-                                baggageScanner.getOutgoingTracks()[0].getTrays().remove(trayToRemove);
-                                continue;
-                            }
-                            trayToRemove = baggageScanner.getOutgoingTracks()[1].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(handBaggage)).findFirst().orElseThrow();
-                            baggageScanner.getOutgoingTracks()[1].getTrays().remove(trayToRemove);
-                        }
-
-                        // People leaving.
-                        baggageScanner.getManualPostControl().setPresentOfficers(null);
-                        baggageScanner.getManualPostControl().setPresentPassenger(null);
-
-                        // Continue scanning
-                        ((Supervisor) baggageScanner.getSupervision().getSupervisor()).unlockScanner(baggageScanner);
-                        baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
-                    }
-                }
+                reactToProhibitedItem(lastResult.getResult().getItemType(), baggageScanner);
             }
         }
     }
 
-    public void notifyKnife (BaggageScanner scanner) {
-        System.out.println("Inspector \"" + getName() + "\" was notified there is a knife in the baggage.");
-        // Take Tray from track to Control
-        final Track[] tracks = scanner.getOutgoingTracks();
-        scanner.getManualPostControl().setCurrentTrayToInvestigate(tracks[0].getTrays().remove(tracks[0].getTrays().size() - 1));
-        final Passenger passenger = scanner.getManualPostControl().getCurrentTrayToInvestigate().getContainedBaggage().getOwner();
-        tracks[1].callPassenger(passenger);
-        scanner.getManualPostControl().setPresentPassenger(passenger);
+    public void reactToProhibitedItem (ProhibitedItem itemType, BaggageScanner baggageScanner) {
+        System.out.printf("Inspector   : \"%s\" is reacting to a prohibited item. Rerouting baggage to ManualPostControl and taking appropriate action%n", getName());
 
-        final ScanResult result = scanner.getScanResults().get(scanner.getScanResults().size() - 1).getResult();
-        final String takenContent = scanner.getManualPostControl().getCurrentTrayToInvestigate().getContainedBaggage()
-                                           .takeContent(result.getPosition()[0], result.getPosition()[1], result.getItemType().getSignature().length());
-        System.out.println("Inspector \"" + getName() + "\" has taken '" + takenContent + "' and got rid of it.");
+        final Tray scannedTray = baggageScanner.getScanner().move(null);
+        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
+
+        switch (itemType) {
+            case KNIFE -> {
+                System.out.printf("Inspector   : \"%s\" recognized a knife. Rerouting baggage to ManualPostControl%n", getName());
+
+                ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).notifyKnife(baggageScanner);
+                // Scanner is not locked, so it is not necessary to unlock
+                return;
+            }
+            case WEAPON -> {
+                System.out.printf("Inspector   : \"%s\" recognized a weapon. Rerouting baggage to ManualPostControl%n", getName());
+
+                triggerAlert(baggageScanner);
+                ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).notifyWeapon(baggageScanner);
+            }
+            case EXPLOSIVE -> {
+                System.out.printf("Inspector   : \"%s\" recognized an explosive. Rerouting baggage to ManualPostControl%n", getName());
+
+                triggerAlert(baggageScanner);
+
+                // Save the persons remaining baggage to remove it from the scanner later
+                // Additional constructor needed since Arrays.asList gives an unmodifiable List
+                final List<HandBaggage> toRemove = new ArrayList<>(Arrays.asList(baggageScanner.getManualPostControl().getPresentPassenger().getBaggage()));
+                toRemove.remove(scannedTray.getContainedBaggage());
+
+                // React to Explosives
+                ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).testBaggageForExplosives(baggageScanner.getManualPostControl());
+
+                // Remove remaining Baggage from Scanner
+                for (HandBaggage handBaggage : toRemove) {
+                    Tray removalTray = new Tray(handBaggage);
+
+                    // If the component does not contain the tray the call of remove is ignored
+                    baggageScanner.getBelt().getTrayQueue().remove(removalTray);
+                    baggageScanner.getOutgoingTracks()[0].getTrays().remove(removalTray);
+                    baggageScanner.getOutgoingTracks()[1].getTrays().remove(removalTray);
+                }
+            }
+        }
+
+        // People leaving.
+        baggageScanner.getManualPostControl().setPresentOfficers(null);
+        baggageScanner.getManualPostControl().setPresentPassenger(null);
+
+        // Continue scanning by unlocking the scanner if necessary
+        if (baggageScanner.getCurrentState() instanceof Locked) {
+            ((Supervisor) baggageScanner.getSupervision().getSupervisor()).unlockScanner(baggageScanner);
+            baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
+        }
+    }
+
+    public void triggerAlert (IBaggageScanner scanner) {
+        System.out.printf("Inspector   : \"%s\" is activating the alert.%n", getName());
+        scanner.alert();
+    }
+
+
+    public void notifyKnife (BaggageScanner scanner) {
+        System.out.printf("Inspector   : \"%s\" was notified there is a knife in the baggage%n", getName());
+
+        // Take Tray from track to postControl
+        final ManualPostControl postControl = scanner.getManualPostControl();
+        final Track[] tracks = scanner.getOutgoingTracks();
+        postControl.setCurrentTrayToInvestigate(tracks[0].getTrays().removeLast());
+
+        // Call Passenger to be present when opening their baggage
+        final Passenger passenger = postControl.getCurrentTrayToInvestigate().getContainedBaggage().getOwner();
+        tracks[1].callPassenger(passenger);
+        postControl.setPresentPassenger(passenger);
+
+        // Take Knife out of the baggage
+        final ScanResult result = scanner.getScanResults().getLast().getResult();
+        final String takenContent = postControl.getCurrentTrayToInvestigate().getContainedBaggage().takeContent(
+                result.getPosition()[0], result.getPosition()[1], result.getItemType().getSignature().length()
+        );
+        System.out.printf("Inspector   : \"%s\" has taken '%s' and got rid of it.%n", getName(), takenContent);
 
         // Put tray back and let passanger get back.
-        scanner.getManualPostControl().setPresentPassenger(null);
         scanner.getOutgoingTracks()[1].passengerWaiting(passenger);
+        postControl.setPresentPassenger(null);
 
-        tracks[0].getTrays().add(scanner.getManualPostControl().getCurrentTrayToInvestigate());
-        scanner.getManualPostControl().setCurrentTrayToInvestigate(null);
+        tracks[0].getTrays().add(postControl.getCurrentTrayToInvestigate());
+        postControl.setCurrentTrayToInvestigate(null);
+
+        // Move Belt Backwards and retry scan
         ((Inspector) scanner.getOperatingStation().getPresentUser()).pushButton(scanner.getOperatingStation().getButtons()[0]);
         ((Inspector) scanner.getOperatingStation().getPresentUser()).pushButton(scanner.getOperatingStation().getButtons()[1]);
     }
 
-    public void triggerAlert (IBaggageScanner scanner) {
-        System.out.println("Inspector \"" + getName() + "\" is activating the alert.");
-        scanner.alert();
-    }
+    public void notifyWeapon (BaggageScanner scanner) {
+        System.out.println("Inspector   : \"" + getName() + "\" was notified there is a weapon in the baggage");
 
-    public void testBaggageForExplosives (ManualPostControl postControl) {
-        System.out.println("\"" + getName() + "\" is testing a baggage for Explosives. Stay back!");
-        final ExplosivesTestStrip stripe = postControl.getCurrentTrayToInvestigate().getContainedBaggage().swipeTest();
-        final boolean result = postControl.getExplosivesTraceDetector().testStripe(stripe);
-
-        if (result) {
-            System.out.println("Explosive confirmed! Destroying Baggage!");
-            final FederalPoliceOfficer explosiveDestructionOfficer = Arrays
-                    .stream(postControl.getPresentOfficers())
-                    .filter(officer -> officer.getId().equals("O2"))
-                    .findFirst().orElseThrow();
-            explosiveDestructionOfficer.steerRobot(explosiveDestructionOfficer.getOffice().supplyDisarmRobot(), postControl.getConnectedScanner());
-        } else {
-            // Should not happen in this simulation
-            System.out.println("The Explosive could not be confirmed.");
-        }
-    }
-
-    public boolean isSenior () {
-        return isSenior;
-    }
-
-    private void notifyWeapon (BaggageScanner scanner) {
-        System.out.println("Inspector \"" + getName() + "\" was notified there is a weapon in the baggage.");
         final ManualPostControl postControl = scanner.getManualPostControl();
-        postControl.setCurrentTrayToInvestigate(postControl.getBelongingTrack().getTrays().remove(postControl.getBelongingTrack().getTrays().size() - 1));
-        Supervisor presentSupervisor = (Supervisor) scanner.getSupervision().getSupervisor();
+        postControl.setCurrentTrayToInvestigate(postControl.getBelongingTrack().getTrays().removeLast());
         final HandBaggage handBaggage = postControl.getCurrentTrayToInvestigate().takeBaggage();
+
+        // Additionally call supervisor for removing a weapon. Passenger was already called when alert was activated
+        Supervisor presentSupervisor = (Supervisor) scanner.getSupervision().getSupervisor();
+
         final List<HandBaggage> toRemove = Arrays.stream(scanner.getManualPostControl().getPresentPassenger().getBaggage()).collect(Collectors.toList());
         toRemove.remove(handBaggage);
+
         ScanResult lastResult = scanner.getScanResults().get(scanner.getScanResults().size() - 1).getResult();
         final String taken = handBaggage.takeContent(lastResult.getPosition()[0], lastResult.getPosition()[1], lastResult.getItemType().getSignature().length());
+
         System.out.printf(
-                "Inspector \"%s\" took '%s' out of the Baggage and is now handing it to Officer 3. The Baggage was opened whilst \"%s\" and Supervisor \"%s\" were present.%n",
-                getName(), taken,
+                "Inspector   : \"%s\" took '%s' out of the Baggage and is now handing it to Officer 3. The Baggage was opened whilst \"%s\" and Supervisor \"%s\" were present.%n",
+                getName(),
+                taken,
                 postControl.getPresentPassenger().getName(),
                 presentSupervisor.getName()
         );
+
         postControl.getPresentOfficers()[2].takeWeapon(taken);
         postControl.getCurrentTrayToInvestigate().putBaggage(handBaggage);
+
         postControl.getBelongingTrack().getTrays().add(postControl.getCurrentTrayToInvestigate());
         postControl.setCurrentTrayToInvestigate(null);
 
@@ -191,26 +192,43 @@ public class Inspector extends Employee {
         }
         ((Inspector) scanner.getOperatingStation().getPresentUser()).pushButton(scanner.getOperatingStation().getButtons()[2]);
 
-        System.out.println("All Baggage of the passenger was checked. It will now be taken away with them.");
-        // Remove Baggage from Scanner
-        for (HandBaggage passengerBaggage : toRemove) {
-            Tray trayToRemove = scanner.getBelt().getTrayQueue().stream().filter(tray -> tray.getContainedBaggage().equals(passengerBaggage)).findFirst().orElse(null);
-            if (trayToRemove != null) {
-                scanner.getBelt().getTrayQueue().remove(trayToRemove);
-                continue;
-            }
-            trayToRemove = scanner.getOutgoingTracks()[0].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(passengerBaggage)).findFirst().orElse(null);
-            if (trayToRemove != null) {
-                scanner.getOutgoingTracks()[0].getTrays().remove(trayToRemove);
-                continue;
-            }
-            trayToRemove = scanner.getOutgoingTracks()[1].getTrays().stream().filter(tray -> tray.getContainedBaggage().equals(passengerBaggage)).findFirst().orElse(null);
-            if (trayToRemove != null) {
-                scanner.getOutgoingTracks()[1].getTrays().remove(trayToRemove);
-                continue;
-            }
-            System.out.println("Some piece of baggage was not present on the Scanner anymore. Assuming it was destroyed.");
+        System.out.println("Inspector   : All Baggage of the passenger was checked. It will now be taken away with them");
+        // Remove remaining Baggage from Scanner
+        for (HandBaggage baggage : toRemove) {
+            Tray removalTray = new Tray(baggage);
+
+            // If the component does not contain the tray the call of remove is ignored
+            // There might be a special case here where some baggage after the scanned one was destroyed/removed and is not available anymore.
+            // In this case all three calls below do not change any Collections
+            scanner.getBelt().getTrayQueue().remove(removalTray);
+            scanner.getOutgoingTracks()[0].getTrays().remove(removalTray);
+            scanner.getOutgoingTracks()[1].getTrays().remove(removalTray);
         }
 
+    }
+
+    public void testBaggageForExplosives (ManualPostControl postControl) {
+        System.out.printf("Inspector   : \"%s\" is testing a baggage for Explosives. Stay back!%n", getName());
+        postControl.setCurrentTrayToInvestigate(postControl.getBelongingTrack().getTrays().removeLast());
+
+        final ExplosivesTestStrip stripe = postControl.getCurrentTrayToInvestigate().getContainedBaggage().swipeTest();
+        final boolean result = postControl.getExplosivesTraceDetector().testStripe(stripe);
+
+        if (result) {
+            System.out.println("Inspector   : Explosive confirmed! Destroying Baggage!");
+            final FederalPoliceOfficer explosiveDestructionOfficer = Arrays
+                    .stream(postControl.getPresentOfficers())
+                    .filter(officer -> officer.getId().equals("O2"))
+                    .findFirst().orElseThrow();
+            explosiveDestructionOfficer.steerRobot(explosiveDestructionOfficer.getOffice().supplyDisarmRobot(), postControl.getConnectedScanner());
+        } else {
+            // Should not happen in this simulation
+            System.out.println("Inspector   : The Explosive could not be confirmed.");
+        }
+    }
+
+
+    public boolean isSenior () {
+        return isSenior;
     }
 }

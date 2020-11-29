@@ -6,13 +6,19 @@ import security.staff.Employee;
 import security.staff.FederalPoliceOfficer;
 
 public class ManualPostControl {
-    private final Track belongingTrack;
+
+    //region connected components/devices
     private final BaggageScanner connectedScanner;
+    private final Track belongingTrack;
     private final ExplosivesTraceDetector explosivesTraceDetector;
+    //endregion connected components/devices
+    //region people
     private Employee workingInspector;
     private FederalPoliceOfficer[] presentOfficers;
-    private Tray currentTrayToInvestigate;
     private Passenger presentPassenger;
+    //endregion people
+    private Tray currentTrayToInvestigate;
+
 
     public ManualPostControl (Track belongingTrack, BaggageScanner connectedScanner, ExplosivesTraceDetector explosivesTraceDetector) {
         this.belongingTrack = belongingTrack;
@@ -20,13 +26,16 @@ public class ManualPostControl {
         this.explosivesTraceDetector = explosivesTraceDetector;
     }
 
+
     public Track getBelongingTrack () {
         return belongingTrack;
     }
 
+
     public BaggageScanner getConnectedScanner () {
         return connectedScanner;
     }
+
 
     public Employee getWorkingInspector () {
         return workingInspector;
@@ -36,6 +45,7 @@ public class ManualPostControl {
         this.workingInspector = workingInspector;
     }
 
+
     public FederalPoliceOfficer[] getPresentOfficers () {
         return presentOfficers;
     }
@@ -43,6 +53,7 @@ public class ManualPostControl {
     public void setPresentOfficers (FederalPoliceOfficer[] presentOfficers) {
         this.presentOfficers = presentOfficers;
     }
+
 
     public Tray getCurrentTrayToInvestigate () {
         return currentTrayToInvestigate;
@@ -52,6 +63,7 @@ public class ManualPostControl {
         this.currentTrayToInvestigate = currentTrayToInvestigate;
     }
 
+
     public Passenger getPresentPassenger () {
         return presentPassenger;
     }
@@ -59,6 +71,7 @@ public class ManualPostControl {
     public void setPresentPassenger (Passenger presentPassenger) {
         this.presentPassenger = presentPassenger;
     }
+
 
     public ExplosivesTraceDetector getExplosivesTraceDetector () {
         return explosivesTraceDetector;
