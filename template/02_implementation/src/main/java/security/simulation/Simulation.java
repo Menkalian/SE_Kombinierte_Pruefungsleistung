@@ -19,12 +19,7 @@ import security.data.enums.ButtonIcon;
 import security.data.enums.TypeOfIDCard;
 import security.devices.CardReader;
 import security.devices.ExplosivesTraceDetector;
-import security.staff.Employee;
-import security.staff.FederalPoliceOffice;
-import security.staff.FederalPoliceOfficer;
-import security.staff.Inspector;
-import security.staff.Supervisor;
-import security.staff.Technician;
+import security.staff.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,6 +148,7 @@ public class Simulation {
             addEmployee(new FederalPoliceOfficer("O1", "Wesley Snipes", "31.07.1962", "Officer"));
             addEmployee(new FederalPoliceOfficer("O2", "Toto", "01.01.1969", "Officer"));
             addEmployee(new FederalPoliceOfficer("O3", "Harry", "01.01.1969", "Officer"));
+            addEmployee(new HouseKeeper("K", "Jason Clarke", "17.07.1969"));
         }
 
         public void defaultPassengers () throws IOException, URISyntaxException {
