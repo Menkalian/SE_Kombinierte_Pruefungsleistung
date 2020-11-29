@@ -25,17 +25,16 @@ public class ScanResult {
                    "REPORT      : #                       #";
         } else {
             DecimalFormat positionFormat = new DecimalFormat("00000");
-            return ("""
-                    REPORT      : #  PROHIBITED ITEM AT:  #
-                    REPORT      : #    Layer %d            #
-                    REPORT      : #    Position %s     #
-                    REPORT      : # Type: %s #
-                    REPORT      : #                       #""")
-                    .formatted(
-                            position[0],
-                            positionFormat.format(position[1]),
-                            itemType.toString()
-                    );
+            //noinspection TextBlockMigration
+            return String.format("REPORT      : #  PROHIBITED ITEM AT:  #\n" +
+                                 "REPORT      : #    Layer %d            #\n" +
+                                 "REPORT      : #    Position %s     #\n" +
+                                 "REPORT      : # Type: %s #\n" +
+                                 "REPORT      : #                       #",
+                                 position[0],
+                                 positionFormat.format(position[1]),
+                                 itemType.toString()
+            );
         }
     }
 
