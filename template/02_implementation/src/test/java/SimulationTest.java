@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -33,14 +35,6 @@ public class SimulationTest {
         build = simulationBuilder.build();
         build.initializeSimulation();
         build.runSimulation();
-    }
-
-    @Order(1)
-    @TestFactory
-    public Stream<DynamicTest> test1_passengersAndBaggage (){
-        Assertions.assertEquals(568, build.getPassengers().stream().count());
-        //Assertions.assertEquals(609, build.getBaggageScanner().);
-        return Stream.<DynamicTest>builder().build();
     }
 
     @Order(2)
@@ -153,7 +147,7 @@ public class SimulationTest {
     @Order(6)
     @Test
     public void test6_sOnlyUnlock (){
-        //BaggageScanner automaticly unlocks, when a Supervisor logs in
+        //BaggageScanner automatically unlocks, when a Supervisor logs in
         Locked locked = new Locked();
         build.getBaggageScanner().setCurrentState(locked);
         //I
@@ -201,9 +195,11 @@ public class SimulationTest {
 
     @Order(10)
     @Test
-    public void test10_log (){
-        Assertions.assertTrue(true);
-
+    public void test10_log () throws IOException {
+        String log = Files.readString(Path.of("log.txt"));
+        for(int i = 0; i<build.getBaggageScanner().getScanResults().size(); i++){
+            Assertions.assertTrue(log.contains(build.getBaggageScanner().getScanResults().get(i).toString()));
+        }
     }
 
     @Order(11)
