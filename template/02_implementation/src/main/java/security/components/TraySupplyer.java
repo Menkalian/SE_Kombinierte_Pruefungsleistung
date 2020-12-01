@@ -1,17 +1,16 @@
 package security.components;
 
-import security.customer.HandBaggage;
 import security.customer.Passenger;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class TraySupplement {
+public class TraySupplyer {
     private final Deque<Passenger> passengerQueue = new ArrayDeque<>(568);
     private final BaggageScanner connectedScanner;
 
 
-    public TraySupplement (BaggageScanner connectedScanner) {
+    public TraySupplyer (BaggageScanner connectedScanner) {
         this.connectedScanner = connectedScanner;
     }
 
@@ -20,11 +19,7 @@ public class TraySupplement {
         Passenger current = passengerQueue.pollFirst();
 
         if (current != null) {
-            for (HandBaggage handBaggage : current.getBaggage()) {
-                Tray temp = getTray();
-                temp.putBaggage(handBaggage);
-                connectedScanner.getRollerConveyor().addTray(temp);
-            }
+            current.putBaggageToScan(connectedScanner);
 
             System.out.println("TraySupply  : Passenger \"" + current.getName() + "\" has placed their baggage. They are waiting at the outgoing track.");
             connectedScanner.getOutgoingTracks()[1].passengerWaiting(current);
@@ -32,12 +27,13 @@ public class TraySupplement {
     }
 
 
-    public Deque<Passenger> getPassengerQueue () {
-        return passengerQueue;
-    }
-
     public Tray getTray () {
         System.out.println("TraySupply  : Providing Tray");
         return new Tray();
+    }
+
+
+    public Deque<Passenger> getPassengerQueue () {
+        return passengerQueue;
     }
 }

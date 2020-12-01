@@ -7,8 +7,11 @@ import security.state.Locked;
 
 public class OperatingStation {
     private final BaggageScanner connectedScanner;
+
     private String authenticatedUserType;
+
     private Employee presentUser;
+
     private CardReader cardReader;
     private Button[] buttons;
 

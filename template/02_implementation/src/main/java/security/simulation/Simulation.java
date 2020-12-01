@@ -10,7 +10,7 @@ import security.components.RollerConveyor;
 import security.components.Scanner;
 import security.components.Supervision;
 import security.components.Track;
-import security.components.TraySupplement;
+import security.components.TraySupplyer;
 import security.customer.HandBaggage;
 import security.customer.Layer;
 import security.customer.Passenger;
@@ -50,21 +50,6 @@ public class Simulation {
         this.policeOffice = policeOffice;
     }
 
-
-    public static void main (String[] args) {
-        Builder simulationBuilder = new Builder();
-        simulationBuilder.defaultEmployees();
-        try {
-            simulationBuilder.defaultPassengers();
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-        }
-        final Simulation build = simulationBuilder.build();
-        build.initializeSimulation();
-        build.runSimulation();
-    }
-
-
     public void initializeSimulation () {
         // Place Employees
         baggageScanner.getRollerConveyor().setWorkingInspector(employees.get("I1"));
@@ -74,9 +59,8 @@ public class Simulation {
         baggageScanner.setCurrentFederalPoliceOfficer(employees.get("O1"));
 
         // Add Passengers
-        baggageScanner.getTraySupplement().getPassengerQueue().addAll(passengers);
+        baggageScanner.getTraySupplyer().getPassengerQueue().addAll(passengers);
     }
-
 
     public void runSimulation () {
         // Turn Scanner on
@@ -86,9 +70,9 @@ public class Simulation {
         baggageScanner.getOperatingStation().getPresentUser().enterPIN(baggageScanner.getOperatingStation().getCardReader());
 
         // Scan all passengers' baggage
-        while (!baggageScanner.getTraySupplement().getPassengerQueue().isEmpty()) {
+        while (!baggageScanner.getTraySupplyer().getPassengerQueue().isEmpty()) {
             System.out.println("Simulation  : Next passenger is going through the scanner");
-            baggageScanner.getTraySupplement().nextPassenger();
+            baggageScanner.getTraySupplyer().nextPassenger();
             ((Inspector) employees.get("I1")).pushTray(baggageScanner);
 
             while (!baggageScanner.getBelt().getTrayQueue().isEmpty()) {
@@ -252,7 +236,7 @@ public class Simulation {
             operatingStation.setButtons(buttons);
 
             // Assemble the pieces
-            baggageScanner.setTraySupplement(new TraySupplement(baggageScanner));
+            baggageScanner.setTraySupplyer(new TraySupplyer(baggageScanner));
             baggageScanner.setRollerConveyor(new RollerConveyor(baggageScanner));
             baggageScanner.setBelt(new Belt());
             baggageScanner.setScanner(new Scanner(config.getSearchAlgorithm()));

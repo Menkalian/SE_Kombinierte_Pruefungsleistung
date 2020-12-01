@@ -7,8 +7,8 @@ import security.data.IDCard;
 import java.util.Objects;
 
 public class CardReader {
-    private final AES encryptor;
     private final OperatingStation connectedOperatingStation;
+    private final AES encryptor;
     private IDCard lastScanned;
     private int wrongInputs;
 

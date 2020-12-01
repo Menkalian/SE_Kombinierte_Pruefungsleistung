@@ -16,7 +16,7 @@ public class Passenger {
 
     public void putBaggageToScan (BaggageScanner scanner) {
         for (HandBaggage handBaggage : baggage) {
-            final Tray tray = scanner.getTraySupplement().getTray();
+            final Tray tray = scanner.getTraySupplyer().getTray();
             tray.putBaggage(handBaggage);
             System.out.printf("Passenger   : \"%s\" has taken a tray and put their baggage in it.%n", name);
 

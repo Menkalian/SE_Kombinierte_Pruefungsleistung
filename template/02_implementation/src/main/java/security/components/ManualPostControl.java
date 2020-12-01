@@ -7,16 +7,16 @@ import security.staff.FederalPoliceOfficer;
 
 public class ManualPostControl {
 
-    //region connected components/devices
+    //Components
     private final BaggageScanner connectedScanner;
     private final Track belongingTrack;
     private final ExplosivesTraceDetector explosivesTraceDetector;
-    //endregion connected components/devices
-    //region people
+
+    // People
     private Employee workingInspector;
     private FederalPoliceOfficer[] presentOfficers;
     private Passenger presentPassenger;
-    //endregion people
+
     private Tray currentTrayToInvestigate;
 
 

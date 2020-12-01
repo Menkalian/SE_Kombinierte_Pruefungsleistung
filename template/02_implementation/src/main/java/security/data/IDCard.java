@@ -11,7 +11,7 @@ public class IDCard {
     private final String magnetStripe;
     private final TypeOfIDCard type;
     private Employee owner;
-    private boolean isLocked;
+    private boolean isLocked; // false by default
 
     public IDCard (int id, Instant validUntil, String magnetStripe, boolean isLocked, TypeOfIDCard type) {
         this.id = id;

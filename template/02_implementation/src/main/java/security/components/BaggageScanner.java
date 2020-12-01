@@ -20,7 +20,7 @@ public class BaggageScanner implements IBaggageScanner {
     private State currentState = new Shutdown();
     //endregion Data/Information
     //region Components
-    private TraySupplement traySupplement;
+    private TraySupplyer traySupplyer;
     private RollerConveyor rollerConveyor;
     private Belt belt;
     private Scanner scanner;
@@ -184,12 +184,12 @@ public class BaggageScanner implements IBaggageScanner {
 
         currentState = currentState.allScansDone();
         // Placebo Messages ;-)
-        System.out.println("Performing Maintenance");
-        System.out.println("Transmitting data...");
-        System.out.println("Checking for errors...");
-        System.out.println("No errors detected.");
-        System.out.println("Maintenance complete!");
-        System.out.println("Initiating Shutdown");
+        System.out.println("Bag. Scanner: Performing Maintenance");
+        System.out.println("Bag. Scanner: Transmitting data...");
+        System.out.println("Bag. Scanner: Checking for errors...");
+        System.out.println("Bag. Scanner: No errors detected.");
+        System.out.println("Bag. Scanner: Maintenance complete!");
+        System.out.println("Bag. Scanner: Ready for Shutdown");
     }
 
 
@@ -222,12 +222,12 @@ public class BaggageScanner implements IBaggageScanner {
     }
 
 
-    public TraySupplement getTraySupplement () {
-        return traySupplement;
+    public TraySupplyer getTraySupplyer () {
+        return traySupplyer;
     }
 
-    public void setTraySupplement (TraySupplement traySupplement) {
-        this.traySupplement = traySupplement;
+    public void setTraySupplyer (TraySupplyer traySupplyer) {
+        this.traySupplyer = traySupplyer;
     }
 
 
