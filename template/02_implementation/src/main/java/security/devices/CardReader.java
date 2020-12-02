@@ -42,6 +42,7 @@ public class CardReader {
                 System.out.println("Card Reader : This usertype is not authenticated to use the Scanner");
                 System.out.println("Card Reader : CARD REJECTED");
                 lastScanned = null;
+                throw new RuntimeException("Usertype not authenticated to use the Scanner");
             } else {
                 System.out.println("Card Reader : Please enter your personal PIN!");
                 wrongInputs = 0;
