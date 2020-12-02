@@ -60,8 +60,8 @@ public class Inspector extends Employee {
     public void reactToProhibitedItem (ProhibitedItem itemType, BaggageScanner baggageScanner) {
         System.out.printf("Inspector   : \"%s\" is reacting to a prohibited item. Rerouting baggage to ManualPostControl and taking appropriate action%n", getName());
 
-        final Tray scannedTray = baggageScanner.getScanner().move(null);
-        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
+        // Let I3 move the Tray
+        final Tray scannedTray = ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).moveTrayToMPC(baggageScanner);
 
         switch (itemType) {
             case KNIFE -> {
@@ -117,7 +117,6 @@ public class Inspector extends Employee {
         System.out.printf("Inspector   : \"%s\" is activating the alert.%n", getName());
         scanner.alert();
     }
-
 
     public void notifyKnife (BaggageScanner scanner) {
         System.out.printf("Inspector   : \"%s\" was notified there is a knife in the baggage%n", getName());
@@ -227,8 +226,13 @@ public class Inspector extends Employee {
         }
     }
 
-
     public boolean isSenior () {
         return isSenior;
+    }
+
+    private Tray moveTrayToMPC (BaggageScanner baggageScanner) {
+        final Tray scannedTray = baggageScanner.getScanner().move(null);
+        baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
+        return scannedTray;
     }
 }
