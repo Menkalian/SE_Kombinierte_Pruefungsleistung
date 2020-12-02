@@ -19,7 +19,13 @@ import security.data.enums.ButtonIcon;
 import security.data.enums.TypeOfIDCard;
 import security.devices.CardReader;
 import security.devices.ExplosivesTraceDetector;
-import security.staff.*;
+import security.staff.Employee;
+import security.staff.FederalPoliceOffice;
+import security.staff.FederalPoliceOfficer;
+import security.staff.HouseKeeper;
+import security.staff.Inspector;
+import security.staff.Supervisor;
+import security.staff.Technician;
 
 import java.io.File;
 import java.io.IOException;

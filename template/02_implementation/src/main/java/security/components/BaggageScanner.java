@@ -33,9 +33,6 @@ public class BaggageScanner implements IBaggageScanner {
     private Employee currentFederalPoliceOfficer;
 
 
-    private boolean sufficientRights = true;
-
-
     public BaggageScanner (HashMap<String, Byte> permissions) {
         this.permissions = permissions;
     }
@@ -48,8 +45,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
@@ -74,15 +70,15 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1 << 1) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
         System.out.println("Bag. Scanner: Moving Belt backwards");
 
         // Nothing is taken back from Track02. only from Track01/ManualPostControl.
-        Tray temp = outgoingTracks[0].getTrays().removeLast();
+        Tray temp;
+        temp = outgoingTracks[0].getTrays().removeLast();
         temp = scanner.move(temp);
         if (temp != null)
             belt.moveBackwards(temp);
@@ -95,8 +91,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1 << 2) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
@@ -113,8 +108,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1 << 3) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
@@ -148,8 +142,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1 << 4) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
@@ -186,8 +179,7 @@ public class BaggageScanner implements IBaggageScanner {
         byte permission = permissions.get(authenticated);
         if ((permission & 1 << 5) == 0) {
             System.out.println("Bag. Scanner: \u001B[0;32m*** WARNING: RIGHTS NOT SUFFICIENT ***\u001B[0m");
-            sufficientRights = false;
-            return;
+            throw new RuntimeException("Current Rights are not sufficient");
         }
         //endregion Check for rights
 
@@ -300,13 +292,5 @@ public class BaggageScanner implements IBaggageScanner {
 
     public void setSupervision (Supervision supervision) {
         this.supervision = supervision;
-    }
-
-    public boolean isSufficientRights() {
-        return sufficientRights;
-    }
-
-    public void setSufficientRights(boolean sufficientRights) {
-        this.sufficientRights = sufficientRights;
     }
 }

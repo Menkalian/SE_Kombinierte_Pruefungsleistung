@@ -19,14 +19,14 @@ public class CardReader {
     }
 
 
-    public boolean swipeCard (IDCard card) {
+    public void swipeCard (IDCard card) {
         if (card.isLocked()) {
             System.out.println("Card Reader : Card is locked. Please contact your supervisor to get it unlocked");
             System.out.println("Card Reader : CARD REJECTED");
 
             // Reset Last Scanned to prevent exploits
             lastScanned = null;
-            return true;
+            return;
         }
 
         if (Objects.equals(lastScanned, card)) {
@@ -42,15 +42,13 @@ public class CardReader {
                 System.out.println("Card Reader : This usertype is not authenticated to use the Scanner");
                 System.out.println("Card Reader : CARD REJECTED");
                 lastScanned = null;
-                return false;
+                throw new RuntimeException("Usertype not authenticated to use the Scanner");
             } else {
                 System.out.println("Card Reader : Please enter your personal PIN!");
                 wrongInputs = 0;
                 lastScanned = card;
-                return true;
             }
         }
-        return false;
     }
 
     public void enterPin (String pin) {
@@ -80,6 +78,5 @@ public class CardReader {
     public OperatingStation getConnectedOperatingStation () {
         return connectedOperatingStation;
     }
-
 
 }

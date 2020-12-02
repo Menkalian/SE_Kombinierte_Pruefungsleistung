@@ -1,4 +1,9 @@
-import org.junit.jupiter.api .*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import security.customer.HandBaggage;
 import security.customer.Layer;
 import security.customer.Passenger;
@@ -7,6 +12,7 @@ import security.simulation.Simulation;
 import security.staff.Inspector;
 import security.staff.Supervisor;
 import security.staff.Technician;
+import security.state.Activated;
 import security.state.Locked;
 
 import java.io.File;
@@ -27,9 +33,9 @@ public class SimulationTest {
     private Simulation build;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp () {
         try {
-            System.setOut(new PrintStream(new File("log.txt")));
+            System.setOut(new PrintStream("log.txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -46,13 +52,13 @@ public class SimulationTest {
 
     @Order(1)
     @Test
-    public void test1_passengersAndBaggage() throws FileNotFoundException, URISyntaxException {
+    public void test1_passengersAndBaggage () throws FileNotFoundException, URISyntaxException {
         //Passenger Count correct
-        Assertions.assertEquals(568, build.getPassengers().stream().count());
+        Assertions.assertEquals(568, (long) build.getPassengers().size());
         //Baggage Count correct
-        int baggageCount=0;
-        for(int i=0; i<build.getPassengers().size(); i++) {
-            for(int j=0; j<build.getPassengers().get(i).getBaggage().length; j++) {
+        int baggageCount = 0;
+        for (int i = 0 ; i < build.getPassengers().size() ; i++) {
+            for (int j = 0 ; j < build.getPassengers().get(i).getBaggage().length ; j++) {
                 baggageCount++;
             }
         }
@@ -69,12 +75,12 @@ public class SimulationTest {
             Passenger passenger = new Passenger(passengerInformation[0]);
 
             List<HandBaggage> passengerBaggage = new ArrayList<>(passengerInformation.length - 1);
-            int b=0;
-            for (int i = 1; i < passengerInformation.length; i++) {
+            int b = 0;
+            for (int i = 1 ; i < passengerInformation.length ; i++) {
                 File baggageFile = new File(Simulation.class.getResource("baggage_" + passengerInformation[i] + ".txt").toURI());
                 java.util.Scanner baggageInputScanner = new java.util.Scanner(baggageFile);
                 Layer[] layers = new Layer[5];
-                for (int layerIndex = 0; layerIndex < layers.length; layerIndex++) {
+                for (int layerIndex = 0 ; layerIndex < layers.length ; layerIndex++) {
                     layers[layerIndex] = new Layer(baggageInputScanner.nextLine());
                 }
                 HandBaggage handBaggage = new HandBaggage(passenger, layers);
@@ -87,17 +93,17 @@ public class SimulationTest {
             passengersCorrect.add(passenger);
         }
 
-        for(int i=0; i<build.getPassengers().size(); i++){
+        for (int i = 0 ; i < build.getPassengers().size() ; i++) {
             Assertions.assertEquals(passengersCorrect.get(i).getName(), build.getPassengers().get(i).getName());
             Assertions.assertEquals(passengersCorrect.get(i).getBaggage().length, build.getPassengers().get(i).getBaggage().length);
             Assertions.assertEquals(passengersCorrect.get(i).isArrested(), build.getPassengers().get(i).isArrested());
         }
 
-        int b=0;
-        for(int i=0; i<build.getPassengers().size();i++){
-            for(int j=0; j<build.getPassengers().get(i).getBaggage().length; j++){
-                Assertions.assertEquals(handBaggageCorrect.get(b).getOwner().getName() , build.getPassengers().get(i).getBaggage()[j].getOwner().getName());
-                Assertions.assertEquals(handBaggageCorrect.get(b).getLayers().length , build.getPassengers().get(i).getBaggage()[j].getLayers().length);
+        int b = 0;
+        for (int i = 0 ; i < build.getPassengers().size() ; i++) {
+            for (int j = 0 ; j < build.getPassengers().get(i).getBaggage().length ; j++) {
+                Assertions.assertEquals(handBaggageCorrect.get(b).getOwner().getName(), build.getPassengers().get(i).getBaggage()[j].getOwner().getName());
+                Assertions.assertEquals(handBaggageCorrect.get(b).getLayers().length, build.getPassengers().get(i).getBaggage()[j].getLayers().length);
                 b++;
             }
         }
@@ -105,7 +111,7 @@ public class SimulationTest {
 
     @Order(2)
     @Test
-    public void test2_occupiedCorrectly (){
+    public void test2_occupiedCorrectly () {
         //I1-Clint Eastwood at RollerConveyor
         Assertions.assertEquals("Clint Eastwood", build.getBaggageScanner().getRollerConveyor().getWorkingInspector().getName());
         //I2-Natalie Portman at OperatingStation
@@ -118,7 +124,7 @@ public class SimulationTest {
 
     @Order(3)
     @Test
-    public void test3_lockIDCard (){
+    public void test3_lockIDCard () {
         Assertions.assertFalse(build.getBaggageScanner().getOperatingStation().getPresentUser().getIdCard().isLocked());
         build.getBaggageScanner().getOperatingStation().getCardReader().swipeCard(build.getBaggageScanner().getOperatingStation().getPresentUser().getIdCard());
         build.getBaggageScanner().getOperatingStation().getCardReader().enterPin("");
@@ -131,187 +137,257 @@ public class SimulationTest {
 
     @Order(4)
     @Test
-    public void test4_koBaggageScanner (){
-        Assertions.assertFalse(build.getBaggageScanner().getOperatingStation().getCardReader().swipeCard(build.getEmployees().get("O1").getIdCard()));
-        Assertions.assertFalse(build.getBaggageScanner().getOperatingStation().getCardReader().swipeCard(build.getEmployees().get("K").getIdCard()));
+    public void test4_koBaggageScanner () {
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().getOperatingStation().getCardReader().swipeCard(build.getEmployees().get("O1").getIdCard()));
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().getOperatingStation().getCardReader().swipeCard(build.getEmployees().get("K").getIdCard()));
     }
 
     @Order(5)
     @Test
-    public void test5_onlyProfileFunctions (){
+    public void test5_onlyProfileFunctions () {
         Assertions.assertTrue(true);
         // Turn Scanner on
         ((Supervisor) build.getBaggageScanner().getSupervision().getSupervisor()).switchPower(build.getBaggageScanner());
 
         //I
         build.getBaggageScanner().getOperatingStation().setAuthenticatedUserType("I");
+        build.getBaggageScanner().setCurrentState(new Activated());
 
         //MoveBeltForward - Rights sufficient
-        build.getBaggageScanner().moveBeltForward();
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertDoesNotThrow(() -> {
+            try {
+                build.getBaggageScanner().moveBeltForward();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //Expected Exceptions
+            }
+        });
 
         //MoveBeltBackwards - Rights sufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        try{build.getBaggageScanner().moveBeltBackwards();}catch (NoSuchElementException e){};
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertDoesNotThrow(() -> {
+            try {
+                build.getBaggageScanner().moveBeltBackwards();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //These two exceptions are expected for this test.
+            }
+        });
 
         //Scan - Rights sufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        try{build.getBaggageScanner().scan();}catch(Exception e){};
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertDoesNotThrow(() -> {
+            try {
+                build.getBaggageScanner().scan();
+            } catch (NullPointerException ex) {
+//expected Exception
+            }
+        });
 
         //Alarm - Rights sufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        try{build.getBaggageScanner().alert();}catch(Exception e){};
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        build.getBaggageScanner().setCurrentState(new Activated());
+        Assertions.assertDoesNotThrow(() -> {
+            try {
+                build.getBaggageScanner().alert();
+            } catch (NoSuchElementException ex) {
+//expected Exception
+            }
+        });
 
         //Report - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().report();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().report());
 
         //Maintenance - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().maintenance();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().maintenance());
 
         //S
         build.getBaggageScanner().getOperatingStation().setAuthenticatedUserType("S");
+        build.getBaggageScanner().setCurrentState(new Activated());
 
         //MoveBeltForward - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltForward();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltForward();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //Expected Exceptions
+            }
+        });
 
         //MoveBeltBackwards - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltBackwards();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltBackwards();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //These two exceptions are expected for this test.
+            }
+        });
 
         //Scan - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().scan();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().scan();
+            } catch (NullPointerException ex) {
+//expected Exception
+            }
+        });
 
         //Alarm - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().alert();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        build.getBaggageScanner().setCurrentState(new Activated());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().alert();
+            } catch (NoSuchElementException ex) {
+//expected Exception
+            }
+        });
 
         //Report - Rights sufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().report();
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertDoesNotThrow(() -> build.getBaggageScanner().report());
 
         //Maintenance - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().maintenance();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().maintenance());
 
         //O
         build.getBaggageScanner().getOperatingStation().setAuthenticatedUserType("O");
+        build.getBaggageScanner().setCurrentState(new Activated());
 
         //MoveBeltForward - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltForward();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltForward();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //Expected Exceptions
+            }
+        });
 
         //MoveBeltBackwards - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltBackwards();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltBackwards();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //These two exceptions are expected for this test.
+            }
+        });
 
         //Scan - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().scan();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().scan();
+            } catch (NullPointerException ex) {
+//expected Exception
+            }
+        });
 
         //Alarm - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().alert();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        build.getBaggageScanner().setCurrentState(new Activated());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().alert();
+            } catch (NoSuchElementException ex) {
+//expected Exception
+            }
+        });
 
         //Report - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().report();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().report());
 
         //Maintenance - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().maintenance();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().maintenance());
 
         //T
         build.getBaggageScanner().getOperatingStation().setAuthenticatedUserType("T");
+        build.getBaggageScanner().setCurrentState(new Activated());
 
         //MoveBeltForward - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltForward();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltForward();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //Expected Exceptions
+            }
+        });
 
         //MoveBeltBackwards - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltBackwards();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
-
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltBackwards();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //These two exceptions are expected for this test.
+            }
+        });
         //Scan - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().scan();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().scan();
+            } catch (NullPointerException ex) {
+//expected Exception
+            }
+        });
 
         //Alarm - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().alert();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        build.getBaggageScanner().setCurrentState(new Activated());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().alert();
+            } catch (NoSuchElementException ex) {
+//expected Exception
+            }
+        });
 
         //Report - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().report();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().report());
 
         //Maintenance - Rights sufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        try{build.getBaggageScanner().maintenance();}catch(Exception e){};
-        Assertions.assertTrue(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertDoesNotThrow(() -> build.getBaggageScanner().maintenance());
 
         //K
         build.getBaggageScanner().getOperatingStation().setAuthenticatedUserType("K");
+        build.getBaggageScanner().setCurrentState(new Activated());
 
         //MoveBeltForward - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltForward();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltForward();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //Expected Exceptions
+            }
+        });
 
         //MoveBeltBackwards - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().moveBeltBackwards();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().moveBeltBackwards();
+            } catch (NoSuchElementException | NullPointerException ex) {
+                //These two exceptions are expected for this test.
+            }
+        });
 
         //Scan - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().scan();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().scan();
+            } catch (NullPointerException ex) {
+//expected Exception
+            }
+        });
 
         //Alarm - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().alert();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        build.getBaggageScanner().setCurrentState(new Activated());
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            try {
+                build.getBaggageScanner().alert();
+            } catch (NoSuchElementException ex) {
+//expected Exception
+            }
+        });
 
         //Report - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().report();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().report());
 
         //Maintenance - Rights insufficient
-        build.getBaggageScanner().setSufficientRights(true);
-        build.getBaggageScanner().maintenance();
-        Assertions.assertFalse(build.getBaggageScanner().isSufficientRights());
+        Assertions.assertThrows(RuntimeException.class, () -> build.getBaggageScanner().maintenance());
 
     }
 
     @Order(6)
     @Test
-    public void test6_sOnlyUnlock (){
+    public void test6_sOnlyUnlock () {
         //BaggageScanner automatically unlocks, when a Supervisor logs in
         Locked locked = new Locked();
         build.getBaggageScanner().setCurrentState(locked);
@@ -338,16 +414,16 @@ public class SimulationTest {
 
     @Order(7)
     @Test
-    public void test7_recogniseKnife (){
+    public void test7_recogniseKnife () {
         // Turn Scanner on
         ((Supervisor) build.getBaggageScanner().getSupervision().getSupervisor()).switchPower(build.getBaggageScanner());
 
         // Activate Scanner
         build.getBaggageScanner().getOperatingStation().getPresentUser().enterPIN(build.getBaggageScanner().getOperatingStation().getCardReader());
 
-        for(int i = 0; i<6; i++)
-            build.getBaggageScanner().getTraySupplement().getPassengerQueue().remove();
-        build.getBaggageScanner().getTraySupplement().nextPassenger();
+        for (int i = 0 ; i < 6 ; i++)
+            build.getBaggageScanner().getTraySupplyer().getPassengerQueue().remove();
+        build.getBaggageScanner().getTraySupplyer().nextPassenger();
 
         ((Inspector) build.getEmployees().get("I1")).pushTray(build.getBaggageScanner());
 
@@ -366,21 +442,21 @@ public class SimulationTest {
 
         //ersetzen durch simulation.run -> get(12313)
 
-        Assertions.assertTrue(build.getBaggageScanner().getScanResults().getFirst().getResult().getItemType().equals(ProhibitedItem.KNIFE));
+        Assertions.assertEquals(ProhibitedItem.KNIFE, build.getBaggageScanner().getScanResults().getFirst().getResult().getItemType());
     }
 
     @Order(8)
     @Test
-    public void test8_recogniseWeapon (){
+    public void test8_recogniseWeapon () {
         // Turn Scanner on
         ((Supervisor) build.getBaggageScanner().getSupervision().getSupervisor()).switchPower(build.getBaggageScanner());
 
         // Activate Scanner
         build.getBaggageScanner().getOperatingStation().getPresentUser().enterPIN(build.getBaggageScanner().getOperatingStation().getCardReader());
 
-        for(int i = 0; i<14; i++)
-            build.getBaggageScanner().getTraySupplement().getPassengerQueue().remove();
-        build.getBaggageScanner().getTraySupplement().nextPassenger();
+        for (int i = 0 ; i < 14 ; i++)
+            build.getBaggageScanner().getTraySupplyer().getPassengerQueue().remove();
+        build.getBaggageScanner().getTraySupplyer().nextPassenger();
 
         ((Inspector) build.getEmployees().get("I1")).pushTray(build.getBaggageScanner());
         while (!build.getBaggageScanner().getBelt().getTrayQueue().isEmpty()) {
@@ -398,21 +474,21 @@ public class SimulationTest {
         build.getEmployees().get("S").enterPIN(build.getBaggageScanner().getOperatingStation().getCardReader());
         build.getBaggageScanner().report();
 
-        Assertions.assertTrue(build.getBaggageScanner().getScanResults().get(1).getResult().getItemType().equals(ProhibitedItem.WEAPON));
+        Assertions.assertEquals(ProhibitedItem.WEAPON, build.getBaggageScanner().getScanResults().get(1).getResult().getItemType());
     }
 
     @Order(9)
     @Test
-    public void test9_recogniseExplosive (){
+    public void test9_recogniseExplosive () {
         // Turn Scanner on
         ((Supervisor) build.getBaggageScanner().getSupervision().getSupervisor()).switchPower(build.getBaggageScanner());
 
         // Activate Scanner
         build.getBaggageScanner().getOperatingStation().getPresentUser().enterPIN(build.getBaggageScanner().getOperatingStation().getCardReader());
 
-        for(int i = 0; i<331; i++)
-            build.getBaggageScanner().getTraySupplement().getPassengerQueue().remove();
-        build.getBaggageScanner().getTraySupplement().nextPassenger();
+        for (int i = 0 ; i < 331 ; i++)
+            build.getBaggageScanner().getTraySupplyer().getPassengerQueue().remove();
+        build.getBaggageScanner().getTraySupplyer().nextPassenger();
 
         ((Inspector) build.getEmployees().get("I1")).pushTray(build.getBaggageScanner());
         while (!build.getBaggageScanner().getBelt().getTrayQueue().isEmpty()) {
@@ -430,7 +506,7 @@ public class SimulationTest {
         build.getEmployees().get("S").enterPIN(build.getBaggageScanner().getOperatingStation().getCardReader());
         build.getBaggageScanner().report();
 
-        Assertions.assertTrue(build.getBaggageScanner().getScanResults().get(0).getResult().getItemType().equals(ProhibitedItem.EXPLOSIVE));
+        Assertions.assertEquals(ProhibitedItem.EXPLOSIVE, build.getBaggageScanner().getScanResults().get(0).getResult().getItemType());
     }
 
     @Order(10)
@@ -438,32 +514,32 @@ public class SimulationTest {
     public void test10_log () throws IOException {
         build.runSimulation();
         String log = Files.readString(Path.of("log.txt"));
-        for(int i = 0; i<build.getBaggageScanner().getScanResults().size(); i++){
+        for (int i = 0 ; i < build.getBaggageScanner().getScanResults().size() ; i++) {
             Assertions.assertTrue(log.contains(build.getBaggageScanner().getScanResults().get(i).toString()));
         }
     }
 
     @Order(11)
     @Test
-    public void test11_procedureNothingFound (){
+    public void test11_procedureNothingFound () {
         Assertions.assertTrue(TestUtility.correctProcedureNoProhibitedItems());
     }
 
     @Order(12)
     @Test
-    public void test12_procedureKnifeFound (){
+    public void test12_procedureKnifeFound () {
         Assertions.assertTrue(TestUtility.correctProcedureKnife());
     }
 
     @Order(13)
     @Test
-    public void test13_procedureWeaponFound (){
+    public void test13_procedureWeaponFound () {
         Assertions.assertTrue(TestUtility.correctProcedureWeapon());
     }
 
     @Order(14)
     @Test
-    public void test14_procedureExplosiveFound (){
+    public void test14_procedureExplosiveFound () {
         Assertions.assertTrue(TestUtility.correctProcedureExplosive());
     }
 }
