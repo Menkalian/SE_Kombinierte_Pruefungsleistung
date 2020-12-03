@@ -137,7 +137,7 @@ public class Inspector extends Employee {
         );
         System.out.printf("Inspector   : \"%s\" has taken '%s' and got rid of it.%n", getName(), takenContent);
 
-        // Put tray back and let passanger get back.
+        // Put tray back and let passenger get back.
         scanner.getOutgoingTracks()[1].passengerWaiting(passenger);
         postControl.setPresentPassenger(null);
 

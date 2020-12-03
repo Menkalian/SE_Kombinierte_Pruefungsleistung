@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.Assertions;
 import security.data.ScanResult;
 import security.data.enums.ProhibitedItem;
 import security.data.enums.ScanResultType;
@@ -94,6 +95,13 @@ public class TestUtility {
 
             while (!build.getBaggageScanner().getBelt().getTrayQueue().isEmpty()) {
                 ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[2]);
+                //Inspector.notifyKnife()
+                    //Method sets output to Track 1
+                    //Calls K
+                    //Removes Knife
+                    //puts Tray back
+                    //rescans
+
                 ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[1]);
             }
             ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[2]);
@@ -152,6 +160,7 @@ public class TestUtility {
 
         ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[2]); //right
         ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[1]); //scan
+        //Assertions.assertEquals(1,build.getBaggageScanner().getOutgoingTracks()[1].getTrackNumber());
 
         ((Inspector) build.getEmployees().get("I2")).pushButton(build.getBaggageScanner().getOperatingStation().getButtons()[2]);
 
@@ -204,6 +213,8 @@ public class TestUtility {
             System.out.println("Simulation  : Passenger Baggage was completely scanned");
             System.out.println();
         }
+
+        //notifyWeapon()
 
 
         // Maintenance

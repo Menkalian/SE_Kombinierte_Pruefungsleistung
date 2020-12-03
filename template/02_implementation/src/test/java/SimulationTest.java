@@ -522,24 +522,28 @@ public class SimulationTest {
     @Order(11)
     @Test
     public void test11_procedureNothingFound () {
+        //First Passenger has nothing
         Assertions.assertTrue(TestUtility.correctProcedureNoProhibitedItems());
     }
 
     @Order(12)
     @Test
     public void test12_procedureKnifeFound () {
+        //Going to suiting Passenger
         Assertions.assertTrue(TestUtility.correctProcedureKnife());
     }
 
     @Order(13)
     @Test
     public void test13_procedureWeaponFound () {
+        //Going to suiting Passenger
         Assertions.assertTrue(TestUtility.correctProcedureWeapon());
     }
 
     @Order(14)
     @Test
     public void test14_procedureExplosiveFound () {
+        //Going to suiting Passenger
         Assertions.assertTrue(TestUtility.correctProcedureExplosive());
     }
 }
