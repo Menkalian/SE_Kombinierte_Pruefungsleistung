@@ -22,6 +22,7 @@ import java.util.List;
 
 public class Inspector extends Employee {
     private final boolean isSenior;
+    private int inspectorReactedTo; //shows which scenario happened - used for testing
 
 
     public Inspector (String id, String name, String birthDate, boolean isSenior) {
@@ -50,6 +51,7 @@ public class Inspector extends Employee {
 
             if (lastResult.getResult().getType() == ScanResultType.CLEAN) {
                 System.out.printf("Inspector   : \"%s\" identified the scan as clean. No special action is needed%n", getName());
+                inspectorReactedTo=0; //for test 11
             } else {
                 reactToProhibitedItem(lastResult.getResult().getItemType(), baggageScanner);
             }
@@ -68,6 +70,9 @@ public class Inspector extends Employee {
 
                 ((Inspector) baggageScanner.getManualPostControl().getWorkingInspector()).notifyKnife(baggageScanner);
                 // Scanner is not locked, so it is not necessary to unlock
+
+                inspectorReactedTo=1; //for test 12
+
                 return;
             }
             case WEAPON -> {
@@ -75,6 +80,8 @@ public class Inspector extends Employee {
 
                 triggerAlert(baggageScanner);
                 ((FederalPoliceOfficer) baggageScanner.getCurrentFederalPoliceOfficer()).notifyWeapon(baggageScanner);
+
+                inspectorReactedTo=2; //for test 13
             }
             case EXPLOSIVE -> {
                 System.out.printf("Inspector   : \"%s\" recognized an explosive. Rerouting baggage to ManualPostControl%n", getName());
@@ -98,6 +105,8 @@ public class Inspector extends Employee {
                     baggageScanner.getOutgoingTracks()[0].getTrays().remove(removalTray);
                     baggageScanner.getOutgoingTracks()[1].getTrays().remove(removalTray);
                 }
+
+                inspectorReactedTo=3; //for test 14
             }
         }
 
@@ -177,5 +186,9 @@ public class Inspector extends Employee {
         final Tray scannedTray = baggageScanner.getScanner().move(null);
         baggageScanner.getOutgoingTracks()[0].trayArrive(scannedTray);
         return scannedTray;
+    }
+
+    public int getInspectorReactedTo(){
+        return inspectorReactedTo;
     }
 }

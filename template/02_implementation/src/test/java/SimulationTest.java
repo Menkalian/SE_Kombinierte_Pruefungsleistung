@@ -522,14 +522,12 @@ public class SimulationTest {
     @Order(11)
     @Test
     public void test11_procedureNothingFound () {
-        //First Passenger has nothing
         Assertions.assertTrue(TestUtility.correctProcedureNoProhibitedItems());
     }
 
     @Order(12)
     @Test
     public void test12_procedureKnifeFound () {
-        //Going to suiting Passenger
         Assertions.assertTrue(TestUtility.correctProcedureKnife());
     }
 
